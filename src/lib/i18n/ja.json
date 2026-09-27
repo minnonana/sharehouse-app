@@ -1,0 +1,81 @@
+{
+  "common": {
+    "appName": "シェアハウス",
+    "loading": "読み込み中…",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "back": "戻る"
+  },
+  "nav": {
+    "home": "ホーム",
+    "duty": "当番",
+    "board": "掲示板",
+    "settings": "設定"
+  },
+  "join": {
+    "title": "ハウスに参加",
+    "inviteCode": "招待コード（6桁）",
+    "name": "名前",
+    "roomNumber": "部屋番号",
+    "language": "表示言語",
+    "submit": "参加する",
+    "addToHomeTitle": "ホーム画面に追加してください",
+    "addToHomeBody": "iPhoneの方は、Safariの共有ボタンから「ホーム画面に追加」を選び、ホーム画面のアイコンから開き直してから参加してください。",
+    "openedFromBrowser": "この画面はブラウザから開かれています"
+  },
+  "home": {
+    "todayDuty": "今日の自分の当番",
+    "washer": "洗濯機",
+    "washerIdle": "空いています",
+    "washerInUse": "使用中",
+    "startWasher": "使用中にする",
+    "finishWasher": "空いた",
+    "expectedEndTime": "終了予定時刻（任意）",
+    "unreadImportant": "未読の重要連絡",
+    "pendingShopping": "未対応の買い物",
+    "markDone": "完了"
+  },
+  "duty": {
+    "title": "当番表",
+    "thisWeek": "今週",
+    "history": "履歴",
+    "completedCount": "完了回数",
+    "substituteCount": "代行回数",
+    "requestSwap": "交換をお願いする",
+    "registerAbsence": "不在を登録する",
+    "incomplete": "未完了",
+    "done": "完了",
+    "trashToday": "今日出すゴミ",
+    "burnable": "燃やすごみ",
+    "nonBurnable": "燃やさないごみ",
+    "recyclable": "資源",
+    "plasticOnly": "資源（プラスチックのみ）",
+    "bottle": "あきびん"
+  },
+  "board": {
+    "title": "掲示板",
+    "newPost": "投稿する",
+    "postPlaceholder": "全員に伝えたいことを書いてください",
+    "important": "重要な連絡として送る",
+    "showOriginal": "原文を見る",
+    "showTranslated": "翻訳を見る",
+    "markRead": "読んだ",
+    "templates": {
+      "toiletPaperEmpty": "トイレットペーパーが切れました",
+      "guestComing": "来客の予定があります",
+      "repairVisit": "修理業者が来ます"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "language": "表示言語",
+    "notifications": "通知",
+    "dutyRules": "担当・ルール",
+    "members": "メンバー",
+    "invite": "招待コード発行",
+    "handover": "引き継ぎコード発行",
+    "leave": "退去する",
+    "dadsCredit": "デザインはデジタル庁デザインシステム（DADS）を参考にしています。"
+  }
+}

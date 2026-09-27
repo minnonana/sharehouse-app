@@ -1,0 +1,17 @@
+import { redirect } from "next/navigation";
+import { getCurrentMember } from "@/lib/member/getCurrentMember";
+import { BottomNav } from "@/components/BottomNav";
+
+export default async function MainLayout({ children }: { children: React.ReactNode }) {
+  const ctx = await getCurrentMember();
+  if (!ctx) {
+    redirect("/join");
+  }
+
+  return (
+    <div className="flex min-h-full flex-1 flex-col">
+      <main className="mx-auto w-full max-w-md flex-1 px-4 pb-24 pt-6">{children}</main>
+      <BottomNav />
+    </div>
+  );
+}

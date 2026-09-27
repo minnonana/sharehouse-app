@@ -1,0 +1,81 @@
+{
+  "common": {
+    "appName": "ShareHouse",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back"
+  },
+  "nav": {
+    "home": "Home",
+    "duty": "Duty",
+    "board": "Board",
+    "settings": "Settings"
+  },
+  "join": {
+    "title": "Join a house",
+    "inviteCode": "Invite code (6 digits)",
+    "name": "Name",
+    "roomNumber": "Room number",
+    "language": "Display language",
+    "submit": "Join",
+    "addToHomeTitle": "Please add this app to your home screen",
+    "addToHomeBody": "On iPhone, use Safari's share button to \"Add to Home Screen\", then open it from that icon before joining.",
+    "openedFromBrowser": "This page was opened from a browser"
+  },
+  "home": {
+    "todayDuty": "Your duty today",
+    "washer": "Washer",
+    "washerIdle": "Available",
+    "washerInUse": "In use",
+    "startWasher": "Start using",
+    "finishWasher": "Finished",
+    "expectedEndTime": "Expected end time (optional)",
+    "unreadImportant": "Unread important posts",
+    "pendingShopping": "Pending shopping items",
+    "markDone": "Mark done"
+  },
+  "duty": {
+    "title": "Duty schedule",
+    "thisWeek": "This week",
+    "history": "History",
+    "completedCount": "Completed",
+    "substituteCount": "Substituted",
+    "requestSwap": "Request a swap",
+    "registerAbsence": "Register absence",
+    "incomplete": "Incomplete",
+    "done": "Done",
+    "trashToday": "Trash to take out today",
+    "burnable": "Burnable trash",
+    "nonBurnable": "Non-burnable trash",
+    "recyclable": "Recyclables",
+    "plasticOnly": "Recyclables (plastic only)",
+    "bottle": "Empty bottles"
+  },
+  "board": {
+    "title": "Board",
+    "newPost": "New post",
+    "postPlaceholder": "Write something for everyone",
+    "important": "Send as an important notice",
+    "showOriginal": "Show original",
+    "showTranslated": "Show translation",
+    "markRead": "Mark as read",
+    "templates": {
+      "toiletPaperEmpty": "We're out of toilet paper",
+      "guestComing": "I'll have a guest coming",
+      "repairVisit": "A repair person is coming"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Display language",
+    "notifications": "Notifications",
+    "dutyRules": "Duties & rules",
+    "members": "Members",
+    "invite": "Issue invite code",
+    "handover": "Issue handover code",
+    "leave": "Leave the house",
+    "dadsCredit": "Design inspired by the Japan Digital Agency Design System (DADS)."
+  }
+}

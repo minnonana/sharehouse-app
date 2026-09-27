@@ -1,0 +1,14 @@
+{
+  "name": "シェアハウス共用アプリ",
+  "short_name": "シェアハウス",
+  "description": "掃除当番・洗濯機・掲示板をまとめるシェアハウス共用アプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#a8460d",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

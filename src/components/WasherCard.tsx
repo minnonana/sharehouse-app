@@ -77,7 +77,7 @@ export function WasherCard({
 
       {inUse && washer?.expected_end_at && (
         <p className="mb-3 text-sm text-foreground/70">
-          終了予定 {formatJstTime(washer.expected_end_at)}
+          {t("home.expectedEndTimeLabel", { time: formatJstTime(washer.expected_end_at) })}
         </p>
       )}
 
@@ -100,7 +100,7 @@ export function WasherCard({
               className="rounded-lg border border-border px-3 py-2"
             />
             <span className="text-xs text-foreground/50">
-              未入力の場合は開始から{DEFAULT_DURATION_MINUTES}分後を自動設定します
+              {t("home.expectedEndTimeHint", { minutes: DEFAULT_DURATION_MINUTES })}
             </span>
           </label>
           <button

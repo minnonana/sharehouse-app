@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { ROOM_NUMBERS } from "@/lib/duty/rotation";
 
 export default function CreateHousePage() {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const router = useRouter();
   const [houseName, setHouseName] = useState("");
   const [name, setName] = useState("");
@@ -38,25 +38,23 @@ export default function CreateHousePage() {
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-8">
-      <h1 className="mb-2 text-2xl font-bold text-primary-dark">ハウスを新しく作る</h1>
-      <p className="mb-6 text-sm text-foreground/70">
-        作成したあなたは代表者になります。代表者は常に2人以上必要なので、後から設定画面でもう1人を代表者に追加してください。
-      </p>
+      <h1 className="mb-2 text-2xl font-bold text-primary-dark">{t("createHouse.title")}</h1>
+      <p className="mb-6 text-sm text-foreground/70">{t("createHouse.subtitle")}</p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm font-medium">
-          ハウス名
+          {t("createHouse.houseName")}
           <input
             required
             value={houseName}
             onChange={(e) => setHouseName(e.target.value)}
             className="rounded-lg border border-border px-4 py-3"
-            placeholder="例: ○○ハウス"
+            placeholder={t("createHouse.houseNamePlaceholder")}
           />
         </label>
 
         <label className="flex flex-col gap-1 text-sm font-medium">
-          あなたの名前
+          {t("createHouse.yourName")}
           <input
             required
             value={name}
@@ -66,7 +64,7 @@ export default function CreateHousePage() {
         </label>
 
         <label className="flex flex-col gap-1 text-sm font-medium">
-          あなたの部屋番号
+          {t("createHouse.yourRoomNumber")}
           <select
             required
             value={roomNumber}
@@ -93,7 +91,7 @@ export default function CreateHousePage() {
           disabled={submitting}
           className="mt-2 rounded-full bg-primary px-6 py-3 text-lg font-bold text-white disabled:opacity-50"
         >
-          作成する
+          {t("createHouse.submit")}
         </button>
       </form>
     </main>

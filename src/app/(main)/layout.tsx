@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { BottomNav } from "@/components/BottomNav";
+import { LocaleSync } from "@/components/LocaleSync";
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const ctx = await getCurrentMember();
@@ -10,6 +11,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
+      <LocaleSync locale={ctx.member.display_language} />
       <main className="mx-auto w-full max-w-md flex-1 px-4 pb-24 pt-6">{children}</main>
       <BottomNav />
     </div>

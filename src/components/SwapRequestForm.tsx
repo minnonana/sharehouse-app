@@ -14,7 +14,7 @@ export function SwapRequestForm({
   myDutyTypeKey: DutyKey;
   candidates: Array<{ room: RoomNumber; memberId: string; memberName: string; dutyKey: DutyKey }>;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [targetIndex, setTargetIndex] = useState("");
@@ -61,11 +61,11 @@ export function SwapRequestForm({
         className="rounded-lg border border-border bg-white px-3 py-2"
       >
         <option value="" disabled>
-          交換したい相手を選ぶ
+          {t("duty.selectSwapTarget")}
         </option>
         {candidates.map((c, i) => (
           <option key={c.memberId} value={i}>
-            {c.room} {c.memberName}（{DUTY_LABELS[c.dutyKey].ja}）
+            {c.room} {c.memberName}（{DUTY_LABELS[c.dutyKey][locale]}）
           </option>
         ))}
       </select>
@@ -75,7 +75,7 @@ export function SwapRequestForm({
           disabled={submitting || targetIndex === ""}
           className="flex-1 rounded-full bg-primary px-4 py-2 text-white disabled:opacity-50"
         >
-          依頼する
+          {t("duty.submitSwapRequest")}
         </button>
         <button
           onClick={() => setOpen(false)}

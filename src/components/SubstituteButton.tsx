@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useI18n } from "@/lib/i18n";
 
 export function SubstituteButton({
   weekStartDate,
@@ -12,6 +13,7 @@ export function SubstituteButton({
   originalMemberId: string;
   dutyTypeKey: string;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +37,7 @@ export function SubstituteButton({
       disabled={loading}
       className="rounded-full border border-primary px-3 py-1 text-xs font-bold text-primary-dark disabled:opacity-50"
     >
-      代行する
+      {t("duty.substitute")}
     </button>
   );
 }

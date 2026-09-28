@@ -22,7 +22,17 @@
     "submit": "Join",
     "addToHomeTitle": "Please add this app to your home screen",
     "addToHomeBody": "On iPhone, use Safari's share button to \"Add to Home Screen\", then open it from that icon before joining.",
-    "openedFromBrowser": "This page was opened from a browser"
+    "openedFromBrowser": "This page was opened from a browser",
+    "createHouseLink": "Setting up a house as a representative? Click here"
+  },
+  "createHouse": {
+    "title": "Create a new house",
+    "subtitle": "You'll become a representative. There must always be at least 2 representatives, so add another one later from Settings.",
+    "houseName": "House name",
+    "houseNamePlaceholder": "e.g. Sunrise House",
+    "yourName": "Your name",
+    "yourRoomNumber": "Your room number",
+    "submit": "Create"
   },
   "home": {
     "todayDuty": "Your duty today",
@@ -32,6 +42,8 @@
     "startWasher": "Start using",
     "finishWasher": "Finished",
     "expectedEndTime": "Expected end time (optional)",
+    "expectedEndTimeHint": "If left blank, it will default to {minutes} minutes after starting",
+    "expectedEndTimeLabel": "Expected end {time}",
     "unreadImportant": "Unread important posts",
     "pendingShopping": "Pending shopping items",
     "markDone": "Mark done"
@@ -51,7 +63,21 @@
     "nonBurnable": "Non-burnable trash",
     "recyclable": "Recyclables",
     "plasticOnly": "Recyclables (plastic only)",
-    "bottle": "Empty bottles"
+    "bottle": "Empty bottles",
+    "weekLabel": "Week of {month}/{day}",
+    "wedFriCollectionLabel": "Wed/Fri collection:",
+    "completedSubstituteHeading": "Completed & substituted counts",
+    "completedInline": "Completed",
+    "substituteInline": "Substituted",
+    "substitute": "Substitute",
+    "selectSwapTarget": "Choose who to swap with",
+    "submitSwapRequest": "Send request",
+    "swapInboxTitle": "You have a swap request",
+    "swapItemLabel": "{fromName}'s \"{fromDuty}\" ⇄ your \"{toDuty}\"",
+    "swapAccept": "Accept",
+    "swapDecline": "Decline",
+    "startDate": "Start date",
+    "endDate": "End date"
   },
   "board": {
     "title": "Board",
@@ -61,6 +87,7 @@
     "showOriginal": "Show original",
     "showTranslated": "Show translation",
     "markRead": "Mark as read",
+    "noPosts": "No posts yet",
     "templates": {
       "toiletPaperEmpty": "We're out of toilet paper",
       "guestComing": "I'll have a guest coming",
@@ -73,9 +100,16 @@
     "notifications": "Notifications",
     "dutyRules": "Duties & rules",
     "members": "Members",
+    "ownerBadge": "Representative",
     "invite": "Issue invite code",
+    "inviteHint": "A 6-digit code will be shown once issued (valid for 7 days).",
+    "inviteExpiry": "Expires: {date}",
+    "issue": "Issue",
+    "reissue": "Reissue",
     "handover": "Issue handover code",
     "leave": "Leave the house",
-    "dadsCredit": "Design inspired by the Japan Digital Agency Design System (DADS)."
+    "dadsCreditPrefix": "Design inspired by the",
+    "dadsCreditLinkText": "Japan Digital Agency Design System (DADS)",
+    "dadsCreditSuffix": "."
   }
 }

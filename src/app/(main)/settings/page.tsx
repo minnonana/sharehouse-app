@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { InviteCodeCard } from "@/components/InviteCodeCard";
+import { T } from "@/components/T";
 import type { Member } from "@/types/database";
 
 export default async function SettingsPage() {
@@ -19,17 +20,17 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold text-primary-dark">設定</h1>
+      <T k="settings.title" as="h1" className="text-xl font-bold text-primary-dark" />
 
       <section className="rounded-xl border border-border bg-white p-4 shadow-sm">
-        <h2 className="mb-2 font-bold">表示言語</h2>
+        <T k="settings.language" as="h2" className="mb-2 font-bold" />
         <LanguageSwitcher initialLocale={ctx.member.display_language} />
       </section>
 
       {ctx.member.is_owner && <InviteCodeCard />}
 
       <section className="rounded-xl border border-border bg-white p-4 shadow-sm">
-        <h2 className="mb-2 font-bold">メンバー</h2>
+        <T k="settings.members" as="h2" className="mb-2 font-bold" />
         <ul className="flex flex-col gap-2 text-sm">
           {(members ?? []).map((m) => (
             <li key={m.id} className="flex items-center justify-between">
@@ -38,7 +39,7 @@ export default async function SettingsPage() {
               </span>
               {m.is_owner && (
                 <span className="rounded-full bg-primary-light px-2 py-0.5 text-xs text-primary-dark">
-                  代表者
+                  <T k="settings.ownerBadge" />
                 </span>
               )}
             </li>
@@ -47,16 +48,16 @@ export default async function SettingsPage() {
       </section>
 
       <p className="text-center text-xs text-foreground/50">
-        デザインは
+        <T k="settings.dadsCreditPrefix" />
         <a
           href="https://design.digital.go.jp/dads/"
           target="_blank"
           rel="noopener noreferrer"
           className="underline"
         >
-          デジタル庁デザインシステム（DADS）
+          <T k="settings.dadsCreditLinkText" />
         </a>
-        を参考にしています。
+        <T k="settings.dadsCreditSuffix" />
       </p>
     </div>
   );

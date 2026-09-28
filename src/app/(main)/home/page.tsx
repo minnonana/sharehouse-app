@@ -4,7 +4,7 @@ import { getDutyForRoom, getWeekStartDate, DUTY_LABELS, type DutyKey } from "@/l
 import { getTodayJst } from "@/lib/date/jst";
 import { WasherCard } from "@/components/WasherCard";
 import { CompleteDutyButton } from "@/components/CompleteDutyButton";
-import { HomeTexts } from "./HomeTexts";
+import { T } from "@/components/T";
 import type { Member, WasherStatusRow } from "@/types/database";
 
 export default async function HomePage() {
@@ -63,7 +63,7 @@ export default async function HomePage() {
       </header>
 
       <section className="rounded-xl border border-border bg-white p-4 shadow-sm">
-        <HomeTexts labelKey="home.todayDuty" />
+        <T k="home.todayDuty" as="h2" className="text-sm font-bold text-foreground/70" />
         <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span
@@ -72,7 +72,7 @@ export default async function HomePage() {
             >
               {dutyLabel.short}
             </span>
-            <span className="text-lg font-bold">{dutyLabel.ja}</span>
+            <span className="text-lg font-bold">{dutyLabel[ctx.member.display_language]}</span>
           </div>
           {dutyKey !== "rest" && (
             <CompleteDutyButton

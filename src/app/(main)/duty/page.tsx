@@ -14,11 +14,16 @@ import { AbsenceForm } from "@/components/AbsenceForm";
 import { SwapRequestForm } from "@/components/SwapRequestForm";
 import { SwapRequestInbox } from "@/components/SwapRequestInbox";
 import { SubstituteButton } from "@/components/SubstituteButton";
+import { T } from "@/components/T";
 import type { DutyAssignment, DutyType, Member } from "@/types/database";
 
 export default async function DutyPage() {
   const ctx = await getCurrentMember();
   if (!ctx) return null;
+
+  const lang = ctx.member.display_language;
+  const dutyLabel = (key: DutyKey) => DUTY_LABELS[key][lang];
+  const trashLabel = (kind: keyof typeof TRASH_LABELS) => TRASH_LABELS[kind][lang];
 
   const supabase = await createClient();
   const today = getTodayJst();
@@ -114,12 +119,13 @@ export default async function DutyPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold text-primary-dark">当番表</h1>
+      <T k="duty.title" as="h1" className="text-xl font-bold text-primary-dark" />
 
       <SwapRequestInbox items={inboxItems} />
 
       {weeks.map((week) => {
         const isCurrent = week.weekStartDate === currentWeekStart;
+        const [, month, day] = week.weekStartDate.split("-").map(Number);
         return (
           <section
             key={week.weekStartDate}
@@ -129,15 +135,18 @@ export default async function DutyPage() {
           >
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-bold">
-                {formatWeekLabel(week.weekStartDate)}
-                {isCurrent && <span className="ml-2 text-xs text-primary-dark">今週</span>}
+                <T k="duty.weekLabel" params={{ month, day }} />
+                {isCurrent && (
+                  <span className="ml-2 text-xs text-primary-dark">
+                    <T k="duty.thisWeek" />
+                  </span>
+                )}
               </h2>
             </div>
 
             <ul className="flex flex-col gap-1">
               {ROOM_NUMBERS.map((room) => {
                 const dutyKey = week.assignments[room];
-                const label = DUTY_LABELS[dutyKey];
                 const isMine = room === ctx.member.room_number;
                 const roomMember = memberByRoom.get(room);
                 const dutyType = dutyTypeByKey.get(dutyKey);
@@ -164,13 +173,13 @@ export default async function DutyPage() {
                             isMine ? "bg-white text-primary" : "bg-primary text-white"
                           }`}
                         >
-                          {label.short}
+                          {DUTY_LABELS[dutyKey].short}
                         </span>
-                        {label.ja}
-                        {status === "done" && <span title={label.ja}>✓</span>}
+                        {dutyLabel(dutyKey)}
+                        {status === "done" && <span title={dutyLabel(dutyKey)}>✓</span>}
                         {isIncomplete && (
                           <span className="rounded-full bg-danger px-2 py-0.5 text-[10px] text-white">
-                            {DUTY_LABELS.rest ? "未完了" : ""}
+                            <T k="duty.incomplete" />
                           </span>
                         )}
                       </span>
@@ -212,10 +221,10 @@ export default async function DutyPage() {
 
             {week.wedFriCollections.length > 0 && (
               <p className="mt-3 text-xs text-foreground/70">
-                水金の収集:{" "}
+                <T k="duty.wedFriCollectionLabel" />{" "}
                 {week.wedFriCollections
-                  .map((c) => `${formatMonthDay(c.date)}(${TRASH_LABELS[c.kind].ja})`)
-                  .join("、")}
+                  .map((c) => `${formatMonthDay(c.date)}(${trashLabel(c.kind)})`)
+                  .join(lang === "ja" ? "、" : ", ")}
               </p>
             )}
 
@@ -229,7 +238,7 @@ export default async function DutyPage() {
       })}
 
       <section className="rounded-xl border border-border bg-white p-4 shadow-sm">
-        <h2 className="mb-2 font-bold">完了回数・代行回数</h2>
+        <T k="duty.completedSubstituteHeading" as="h2" className="mb-2 font-bold" />
         <ul className="flex flex-col gap-1 text-sm">
           {(members ?? [])
             .sort((a, b) => a.room_number.localeCompare(b.room_number))
@@ -239,7 +248,8 @@ export default async function DutyPage() {
                   {m.room_number} {m.name}
                 </span>
                 <span className="text-foreground/60">
-                  完了 {completedCountByMember.get(m.id) ?? 0} / 代行 {substituteCountByMember.get(m.id) ?? 0}
+                  <T k="duty.completedInline" /> {completedCountByMember.get(m.id) ?? 0} / <T k="duty.substituteInline" />{" "}
+                  {substituteCountByMember.get(m.id) ?? 0}
                 </span>
               </li>
             ))}
@@ -247,11 +257,6 @@ export default async function DutyPage() {
       </section>
     </div>
   );
-}
-
-function formatWeekLabel(dateStr: string): string {
-  const [, m, d] = dateStr.split("-").map(Number);
-  return `${m}/${d}の週`;
 }
 
 function formatMonthDay(dateStr: string): string {

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { BoardPostForm } from "@/components/BoardPostForm";
 import { MarkReadButton } from "@/components/MarkReadButton";
+import { T } from "@/components/T";
 import type { BoardPost, Member } from "@/types/database";
 
 export default async function BoardPage() {
@@ -30,9 +31,11 @@ export default async function BoardPage() {
     .returns<Pick<Member, "id" | "name">[]>();
   const memberNameById = new Map((members ?? []).map((m) => [m.id, m.name]));
 
+  const dateLocale = ctx.member.display_language === "ja" ? "ja-JP" : "en-US";
+
   return (
     <div className="flex flex-col">
-      <h1 className="mb-4 text-xl font-bold text-primary-dark">掲示板</h1>
+      <T k="board.title" as="h1" className="mb-4 text-xl font-bold text-primary-dark" />
 
       <BoardPostForm />
 
@@ -49,7 +52,7 @@ export default async function BoardPage() {
             >
               <div className="mb-1 flex items-center justify-between text-xs text-foreground/60">
                 <span>{memberNameById.get(post.author_id) ?? "?"}</span>
-                <span>{new Date(post.created_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}</span>
+                <span>{new Date(post.created_at).toLocaleString(dateLocale, { timeZone: "Asia/Tokyo" })}</span>
               </div>
               <p className="whitespace-pre-wrap text-sm">{body}</p>
               {post.is_important && (
@@ -61,9 +64,7 @@ export default async function BoardPage() {
           );
         })}
 
-        {(posts ?? []).length === 0 && (
-          <p className="text-sm text-foreground/50">まだ投稿はありません</p>
-        )}
+        {(posts ?? []).length === 0 && <T k="board.noPosts" as="p" className="text-sm text-foreground/50" />}
       </ul>
     </div>
   );

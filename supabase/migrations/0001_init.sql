@@ -209,11 +209,29 @@ as $$
   limit 1;
 $$;
 
+-- 自分が代表者(is_owner)かどうかを返すヘルパー関数。
+-- members テーブル自身のポリシーの中で「自分が代表者か」を判定する場合、
+-- inline のサブクエリ（select ... from members ...）を直接書くと
+-- 同じテーブルのポリシー評価を再帰的に呼び出してしまい
+-- "infinite recursion detected in policy for relation members" になる。
+-- SECURITY DEFINER 関数を経由することでこれを回避する。
+create or replace function auth_is_owner()
+returns boolean
+language sql
+security definer
+stable
+as $$
+  select exists (
+    select 1 from members
+    where auth_user_id = auth.uid() and is_owner and left_at is null
+  );
+$$;
+
 create policy "select own house" on houses
   for select using (id in (select auth_house_ids()));
 -- 認証済み（匿名ログイン含む）であれば、代表者として新しいハウスを作成できる
 create policy "create house" on houses
-  for insert to authenticated with check (true);
+  for insert with check (true);
 
 create policy "select members of own house" on members
   for select using (house_id in (select auth_house_ids()));
@@ -225,10 +243,8 @@ create policy "self insert member row" on members
   for insert with check (auth_user_id = auth.uid());
 create policy "owners update members" on members
   for update using (
-    house_id in (
-      select m.house_id from members m
-      where m.auth_user_id = auth.uid() and m.is_owner and m.left_at is null
-    )
+    house_id in (select auth_house_ids())
+    and (select auth_is_owner())
   );
 
 create policy "select invite codes of own house" on invite_codes
@@ -322,3 +338,12 @@ create policy "select board post reads of own house" on board_post_reads
   );
 create policy "members insert own board post reads" on board_post_reads
   for insert with check (member_id = (select auth_member_id()));
+
+-- =========================================================
+-- 権限付与: SQL Editor で直接テーブルを作成した場合、
+-- anon / authenticated ロールへの GRANT が自動では行われないため明示する。
+-- （実際のアクセス制御は上記の RLS ポリシーが担う）
+-- =========================================================
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on all tables in schema public to anon, authenticated;
+grant usage, select on all sequences in schema public to anon, authenticated;

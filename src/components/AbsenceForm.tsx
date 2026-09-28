@@ -52,7 +52,7 @@ export function AbsenceForm() {
     <div className="flex flex-col gap-2 rounded-lg border border-border bg-surface-muted p-3">
       <div className="flex gap-2">
         <label className="flex flex-1 flex-col gap-1 text-xs">
-          開始日
+          {t("duty.startDate")}
           <input
             type="date"
             value={startDate}
@@ -61,7 +61,7 @@ export function AbsenceForm() {
           />
         </label>
         <label className="flex flex-1 flex-col gap-1 text-xs">
-          終了日
+          {t("duty.endDate")}
           <input
             type="date"
             value={endDate}

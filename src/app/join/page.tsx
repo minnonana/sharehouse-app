@@ -122,7 +122,7 @@ export default function JoinPage() {
 
       <p className="mt-8 text-center text-sm text-foreground/70">
         <Link href="/create-house" className="underline">
-          代表者として新しくハウスを作る場合はこちら
+          {t("join.createHouseLink")}
         </Link>
       </p>
     </main>

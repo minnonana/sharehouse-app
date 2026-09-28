@@ -22,7 +22,17 @@
     "submit": "参加する",
     "addToHomeTitle": "ホーム画面に追加してください",
     "addToHomeBody": "iPhoneの方は、Safariの共有ボタンから「ホーム画面に追加」を選び、ホーム画面のアイコンから開き直してから参加してください。",
-    "openedFromBrowser": "この画面はブラウザから開かれています"
+    "openedFromBrowser": "この画面はブラウザから開かれています",
+    "createHouseLink": "代表者として新しくハウスを作る場合はこちら"
+  },
+  "createHouse": {
+    "title": "ハウスを新しく作る",
+    "subtitle": "作成したあなたは代表者になります。代表者は常に2人以上必要なので、後から設定画面でもう1人を代表者に追加してください。",
+    "houseName": "ハウス名",
+    "houseNamePlaceholder": "例: ○○ハウス",
+    "yourName": "あなたの名前",
+    "yourRoomNumber": "あなたの部屋番号",
+    "submit": "作成する"
   },
   "home": {
     "todayDuty": "今日の自分の当番",
@@ -32,6 +42,8 @@
     "startWasher": "使用中にする",
     "finishWasher": "空いた",
     "expectedEndTime": "終了予定時刻（任意）",
+    "expectedEndTimeHint": "未入力の場合は開始から{minutes}分後を自動設定します",
+    "expectedEndTimeLabel": "終了予定 {time}",
     "unreadImportant": "未読の重要連絡",
     "pendingShopping": "未対応の買い物",
     "markDone": "完了"
@@ -51,7 +63,21 @@
     "nonBurnable": "燃やさないごみ",
     "recyclable": "資源",
     "plasticOnly": "資源（プラスチックのみ）",
-    "bottle": "あきびん"
+    "bottle": "あきびん",
+    "weekLabel": "{month}/{day}の週",
+    "wedFriCollectionLabel": "水金の収集:",
+    "completedSubstituteHeading": "完了回数・代行回数",
+    "completedInline": "完了",
+    "substituteInline": "代行",
+    "substitute": "代行する",
+    "selectSwapTarget": "交換したい相手を選ぶ",
+    "submitSwapRequest": "依頼する",
+    "swapInboxTitle": "交換のお願いが届いています",
+    "swapItemLabel": "{fromName}さんの「{fromDuty}」⇄ あなたの「{toDuty}」",
+    "swapAccept": "承諾",
+    "swapDecline": "却下",
+    "startDate": "開始日",
+    "endDate": "終了日"
   },
   "board": {
     "title": "掲示板",
@@ -61,6 +87,7 @@
     "showOriginal": "原文を見る",
     "showTranslated": "翻訳を見る",
     "markRead": "読んだ",
+    "noPosts": "まだ投稿はありません",
     "templates": {
       "toiletPaperEmpty": "トイレットペーパーが切れました",
       "guestComing": "来客の予定があります",
@@ -73,9 +100,16 @@
     "notifications": "通知",
     "dutyRules": "担当・ルール",
     "members": "メンバー",
+    "ownerBadge": "代表者",
     "invite": "招待コード発行",
+    "inviteHint": "発行すると6桁のコードが表示されます（有効期限7日）。",
+    "inviteExpiry": "有効期限: {date}",
+    "issue": "発行する",
+    "reissue": "再発行する",
     "handover": "引き継ぎコード発行",
     "leave": "退去する",
-    "dadsCredit": "デザインはデジタル庁デザインシステム（DADS）を参考にしています。"
+    "dadsCreditPrefix": "デザインは",
+    "dadsCreditLinkText": "デジタル庁デザインシステム（DADS）",
+    "dadsCreditSuffix": "を参考にしています。"
   }
 }

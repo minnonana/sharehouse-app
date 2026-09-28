@@ -26,13 +26,22 @@ function getFromPath(obj: Record<string, unknown>, path: string): string | undef
   return typeof value === "string" ? value : undefined;
 }
 
+type TranslateParams = Record<string, string | number>;
+
 interface I18nContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: TranslateParams) => string;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
+
+function interpolate(template: string, params?: TranslateParams): string {
+  if (!params) return template;
+  return template.replace(/\{(\w+)\}/g, (match, name) =>
+    name in params ? String(params[name]) : match,
+  );
+}
 
 export function I18nProvider({
   children,
@@ -44,12 +53,12 @@ export function I18nProvider({
   const [locale, setLocale] = useState<Locale>(initialLocale);
 
   const t = useCallback(
-    (key: string) => {
-      return (
+    (key: string, params?: TranslateParams) => {
+      const template =
         getFromPath(dictionaries[locale], key) ??
         getFromPath(dictionaries.ja, key) ??
-        key
-      );
+        key;
+      return interpolate(template, params);
     },
     [locale],
   );

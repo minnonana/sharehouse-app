@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useI18n } from "@/lib/i18n";
 import { DUTY_LABELS, type DutyKey } from "@/lib/duty/rotation";
 
 interface InboxItem {
@@ -12,6 +13,7 @@ interface InboxItem {
 }
 
 export function SwapRequestInbox({ items }: { items: InboxItem[] }) {
+  const { t, locale } = useI18n();
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -33,13 +35,16 @@ export function SwapRequestInbox({ items }: { items: InboxItem[] }) {
 
   return (
     <section className="rounded-xl border border-primary bg-primary-light p-4 shadow-sm">
-      <h2 className="mb-2 font-bold text-primary-dark">交換のお願いが届いています</h2>
+      <h2 className="mb-2 font-bold text-primary-dark">{t("duty.swapInboxTitle")}</h2>
       <ul className="flex flex-col gap-2">
         {items.map((item) => (
           <li key={item.id} className="flex items-center justify-between rounded-lg bg-white p-3 text-sm">
             <span>
-              {item.fromMemberName}さんの「{DUTY_LABELS[item.fromDutyKey].ja}」⇄ あなたの「
-              {DUTY_LABELS[item.toDutyKey].ja}」
+              {t("duty.swapItemLabel", {
+                fromName: item.fromMemberName,
+                fromDuty: DUTY_LABELS[item.fromDutyKey][locale],
+                toDuty: DUTY_LABELS[item.toDutyKey][locale],
+              })}
             </span>
             <span className="flex gap-2">
               <button
@@ -47,14 +52,14 @@ export function SwapRequestInbox({ items }: { items: InboxItem[] }) {
                 disabled={loadingId === item.id}
                 className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white disabled:opacity-50"
               >
-                承諾
+                {t("duty.swapAccept")}
               </button>
               <button
                 onClick={() => respond(item.id, "decline")}
                 disabled={loadingId === item.id}
                 className="rounded-full border border-border px-3 py-1 text-xs disabled:opacity-50"
               >
-                却下
+                {t("duty.swapDecline")}
               </button>
             </span>
           </li>

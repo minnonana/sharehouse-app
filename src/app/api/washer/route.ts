@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
+import { sendPushToHouse } from "@/lib/push/send";
+import { pushMessages, localize } from "@/lib/push/messages";
 
 // action: "start" | "finish"
 export async function POST(request: Request) {
@@ -45,6 +47,10 @@ export async function POST(request: Request) {
       .eq("house_id", ctx.house.id);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    // 空いたことを全員に通知（自分以外）
+    await sendPushToHouse(supabase, ctx.house.id, localize(pushMessages.washerAvailable()), ctx.member.id);
+
     return NextResponse.json({ ok: true });
   }
 

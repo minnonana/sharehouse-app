@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
+import { sendPushToMember } from "@/lib/push/send";
+import { pushMessages, localize } from "@/lib/push/messages";
 
 // 当番の交換リクエストを作成する。
 // from: 自分の当番（まだ割り当てレコードが無ければ作成される）
@@ -75,5 +77,8 @@ export async function POST(request: Request) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await sendPushToMember(supabase, targetMemberId, localize(pushMessages.swapRequested(ctx.member.name)));
+
   return NextResponse.json({ swapRequest });
 }

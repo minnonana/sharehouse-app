@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { getRoomForDuty } from "@/lib/duty/rotation";
+import { sendPushToMember } from "@/lib/push/send";
+import { pushMessages, localize } from "@/lib/push/messages";
 
 // その週「休み」の人が、不在・未完了の当番を代行する。
 // 代行した人には substitutions レコードで「貸し」を記録する。
@@ -63,5 +65,12 @@ export async function POST(request: Request) {
   });
 
   if (subError) return NextResponse.json({ error: subError.message }, { status: 500 });
+
+  await sendPushToMember(
+    supabase,
+    originalMemberId,
+    localize(pushMessages.substitutedForYou(ctx.member.name)),
+  );
+
   return NextResponse.json({ ok: true });
 }

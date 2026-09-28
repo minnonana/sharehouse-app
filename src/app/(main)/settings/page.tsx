@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { InviteCodeCard } from "@/components/InviteCodeCard";
+import { NotificationSettings } from "@/components/NotificationSettings";
 import { T } from "@/components/T";
 import type { Member } from "@/types/database";
 
@@ -26,6 +27,8 @@ export default async function SettingsPage() {
         <T k="settings.language" as="h2" className="mb-2 font-bold" />
         <LanguageSwitcher initialLocale={ctx.member.display_language} />
       </section>
+
+      <NotificationSettings />
 
       {ctx.member.is_owner && <InviteCodeCard />}
 

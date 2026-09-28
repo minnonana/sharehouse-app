@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
+import { sendPushToHouse } from "@/lib/push/send";
+import { pushMessages, localize } from "@/lib/push/messages";
 
 // 掲示板への投稿を作成する。
 // 翻訳は第3段階で自動翻訳APIに差し替える前提のプレースホルダー実装
@@ -37,5 +39,16 @@ export async function POST(request: Request) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (isImportant) {
+    // 重要な連絡は投稿した瞬間に全員へ通知（自分以外）
+    await sendPushToHouse(
+      supabase,
+      ctx.house.id,
+      localize(pushMessages.boardImportant(ctx.member.name, body)),
+      ctx.member.id,
+    );
+  }
+
   return NextResponse.json({ post });
 }

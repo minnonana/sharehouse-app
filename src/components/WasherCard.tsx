@@ -20,6 +20,8 @@ export function WasherCard({
 
   const inUse = washer?.status === "in_use";
 
+  const DEFAULT_DURATION_MINUTES = 45;
+
   async function callWasherApi(action: "start" | "finish") {
     setLoading(true);
     try {
@@ -28,7 +30,13 @@ export function WasherCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action,
-          expectedEndAt: action === "start" && expectedEndAt ? toIso(expectedEndAt) : null,
+          // 未入力の場合は「使用開始から45分後」を自動で終了予定時刻にする
+          expectedEndAt:
+            action === "start"
+              ? expectedEndAt
+                ? toIso(expectedEndAt)
+                : defaultExpectedEndIso()
+              : null,
         }),
       });
       router.refresh();
@@ -42,6 +50,12 @@ export function WasherCard({
     const [h, m] = hhmm.split(":").map(Number);
     const d = new Date(now);
     d.setHours(h, m, 0, 0);
+    return d.toISOString();
+  }
+
+  function defaultExpectedEndIso(): string {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() + DEFAULT_DURATION_MINUTES);
     return d.toISOString();
   }
 
@@ -85,6 +99,9 @@ export function WasherCard({
               onChange={(e) => setExpectedEndAt(e.target.value)}
               className="rounded-lg border border-border px-3 py-2"
             />
+            <span className="text-xs text-foreground/50">
+              未入力の場合は開始から{DEFAULT_DURATION_MINUTES}分後を自動設定します
+            </span>
           </label>
           <button
             onClick={() => callWasherApi("start")}

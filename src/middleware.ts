@@ -33,7 +33,10 @@ export async function middleware(request: NextRequest) {
 
   // まだ誰もログインしていなければ匿名ログインさせる
   if (!user) {
-    await supabase.auth.signInAnonymously();
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      console.error("[middleware] signInAnonymously failed:", error.message);
+    }
   }
 
   return response;

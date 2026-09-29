@@ -50,9 +50,8 @@
   翻訳に失敗した場合は原文をそのまま表示するので、投稿自体は失敗しない
 - 本番でしっかり運用する場合は `src/lib/translate/translate.ts` をDeepL APIなど有料の正式APIキー方式に差し替えることを推奨
 
-未実装（詳細は `docs/spec-draft.md` 参照）:
-
-- PWAアイコン画像（`public/manifest.json` が参照する `icons/icon-192.png` 等は未生成）
+PWAアイコン（`public/icons/icon-192.png` / `icon-512.png` / `public/apple-touch-icon.png`）は
+オレンジ地に白い家のシンプルなアイコンを生成済み。
 
 ## セットアップ
 

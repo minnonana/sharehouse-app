@@ -178,7 +178,8 @@ async function sendToMember(supabase: any, houseId: string, memberId: string, ke
 Deno.serve(async () => {
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-  const nowJst = toJstDate(new Date());
+  const now = new Date();
+  const nowJst = toJstDate(now);
   const todayJst = formatDateUTC(nowJst);
   const hour = nowJst.getUTCHours();
   const minute = nowJst.getUTCMinutes();
@@ -318,11 +319,66 @@ Deno.serve(async () => {
       }
     }
 
+    // 買い物帳: 追加から3日たっても誰も「行けるよ」を押していなければ全員に再通知
+    const threeDaysAgoIso = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: staleItems } = await supabase
+      .from("shopping_items")
+      .select("id, name_ja, name_en, created_at")
+      .eq("house_id", houseId)
+      .eq("status", "pending")
+      .lte("created_at", threeDaysAgoIso);
+
+    for (const item of staleItems ?? []) {
+      const nameJa = (item as { name_ja?: string; name?: string }).name_ja ?? (item as { name?: string }).name ?? "";
+      const nameEn = (item as { name_en?: string; name?: string }).name_en ?? (item as { name?: string }).name ?? "";
+      for (const m of members ?? []) {
+        await sendToMember(
+          supabase,
+          houseId,
+          (m as { id: string }).id,
+          `shopping_unclaimed:${(item as { id: string }).id}`,
+          {
+            ja: { title: "🛒 まだ誰も対応していません", body: `「${nameJa}」に誰も「行けるよ」を押していません。`, url: "/shopping" },
+            en: { title: "🛒 Still unclaimed", body: `No one has claimed "${nameEn}" yet.`, url: "/shopping" },
+          },
+        );
+      }
+    }
+
+    // 共用費: 毎月1日9時に全員へ今月の共用費を通知
+    const [year, month] = todayJst.split("-").map(Number);
+    if (nowJst.getUTCDate() === 1 && hour === 9 && minute < 5) {
+      for (const m of members ?? []) {
+        await sendToMember(supabase, houseId, (m as { id: string }).id, `dues_announce:${year}-${month}:${(m as { id: string }).id}`, {
+          ja: { title: "💰 今月の共用費", body: "今月の共用費 500円をお願いします。", url: "/shopping" },
+          en: { title: "💰 This month's shared fee", body: "Please pay this month's shared fee (¥500).", url: "/shopping" },
+        });
+      }
+    }
+
+    // 共用費: 毎月5日20時に未払いなら本人にだけ通知
+    if (nowJst.getUTCDate() === 5 && hour === 20 && minute < 5) {
+      const { data: dues } = await supabase
+        .from("monthly_dues")
+        .select("member_id, paid")
+        .eq("house_id", houseId)
+        .eq("year", year)
+        .eq("month", month);
+      const paidMemberIds = new Set((dues ?? []).filter((d: { paid: boolean }) => d.paid).map((d: { member_id: string }) => d.member_id));
+      for (const m of members ?? []) {
+        const memberId = (m as { id: string }).id;
+        if (paidMemberIds.has(memberId)) continue;
+        await sendToMember(supabase, houseId, memberId, `dues_unpaid:${year}-${month}:${memberId}`, {
+          ja: { title: "💰 共用費が未払いです", body: "今月の共用費 500円がまだ未払いです。", url: "/shopping" },
+          en: { title: "💰 Shared fee unpaid", body: "This month's shared fee (¥500) is still unpaid.", url: "/shopping" },
+        });
+      }
+    }
+
     // 洗濯機: 終了予定時刻 / 放置リマインド
     const { data: washer } = await supabase.from("washer_status").select("*").eq("house_id", houseId).maybeSingle();
     if (washer && washer.status === "in_use" && washer.used_by && washer.expected_end_at) {
       const expectedEnd = new Date(washer.expected_end_at);
-      const now = new Date();
       if (now >= expectedEnd && !washer.reminder_sent) {
         await sendToMember(supabase, houseId, washer.used_by, `washer_end:${washer.id}:${washer.expected_end_at}`, {
           ja: { title: "🧺 洗濯終了予定の時刻です", body: "洗濯物を取り出しましたか？", url: "/home" },

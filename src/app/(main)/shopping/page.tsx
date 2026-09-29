@@ -23,7 +23,6 @@ export default async function ShoppingPage() {
     .is("left_at", null)
     .returns<Member[]>();
   const memberById = new Map((members ?? []).map((m) => [m.id, m]));
-  const totalMembers = (members ?? []).length;
 
   const { data: items } = await supabase
     .from("shopping_items")
@@ -58,11 +57,16 @@ export default async function ShoppingPage() {
 
   const myDue = (allDues ?? []).find((d) => d.member_id === ctx.member.id && d.year === year && d.month === month);
   const thisMonthDues = (allDues ?? []).filter((d) => d.year === year && d.month === month);
-  const paidCount = thisMonthDues.filter((d) => d.paid).length;
   const paidMemberIds = new Set(thisMonthDues.filter((d) => d.paid).map((d) => d.member_id));
-  const unpaidNames = (members ?? [])
-    .filter((m) => !paidMemberIds.has(m.id))
-    .map((m) => m.name);
+  const memberStatuses = (members ?? [])
+    .slice()
+    .sort((a, b) => a.room_number.localeCompare(b.room_number))
+    .map((m) => ({
+      memberId: m.id,
+      name: m.name,
+      roomNumber: m.room_number,
+      paid: paidMemberIds.has(m.id),
+    }));
 
   const activeItems = (items ?? []).filter((i) => i.status !== "settled");
   const settledItems = (items ?? []).filter((i) => i.status === "settled");
@@ -76,9 +80,7 @@ export default async function ShoppingPage() {
         month={month}
         amountYen={500}
         myPaid={myDue?.paid ?? false}
-        paidCount={paidCount}
-        totalMembers={totalMembers}
-        unpaidNames={unpaidNames}
+        memberStatuses={memberStatuses}
         monthlyRows={monthlyRows}
       />
 

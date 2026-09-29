@@ -154,14 +154,19 @@ export default async function DutyPage() {
                   isCurrent && roomMember && dutyType
                     ? statusByMemberDuty.get(`${roomMember.id}:${dutyType.id}`) ?? "pending"
                     : undefined;
-                const isIncomplete = isCurrent && weekEnded && status && status !== "done" && dutyKey !== "rest";
+                const isDone = status === "done";
+                const isPendingDisplay = isCurrent && dutyKey !== "rest" && !isDone;
+                const isOverdue = isPendingDisplay && weekEnded;
+
+                // 完了済みは薄く目立たなくし、まだの人が自然と浮き上がるようにする
+                const faded = isCurrent && dutyKey !== "rest" && isDone;
 
                 return (
                   <li
                     key={room}
-                    className={`flex flex-col gap-1 rounded-lg px-3 py-2 text-sm ${
+                    className={`flex flex-col gap-1 rounded-lg px-3 py-2 text-sm transition-opacity ${
                       isMine ? "bg-primary text-white font-bold" : "bg-surface-muted"
-                    }`}
+                    } ${faded ? "opacity-40" : ""}`}
                   >
                     <div className="flex items-center justify-between">
                       <span>
@@ -176,10 +181,19 @@ export default async function DutyPage() {
                           {DUTY_LABELS[dutyKey].short}
                         </span>
                         {dutyLabel(dutyKey)}
-                        {status === "done" && <span title={dutyLabel(dutyKey)}>✓</span>}
-                        {isIncomplete && (
-                          <span className="rounded-full bg-danger px-2 py-0.5 text-[10px] text-white">
+                        {isDone && <span aria-label={dutyLabel(dutyKey)}>✓</span>}
+                        {isOverdue && (
+                          <span className="rounded-full bg-danger px-2 py-0.5 text-[10px] font-bold text-white">
                             <T k="duty.incomplete" />
+                          </span>
+                        )}
+                        {isPendingDisplay && !isOverdue && (
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              isMine ? "bg-white text-primary" : "bg-warning text-white"
+                            }`}
+                          >
+                            <T k="duty.notYet" />
                           </span>
                         )}
                       </span>

@@ -5,23 +5,26 @@ import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import type { MonthlyBalanceRow } from "@/lib/shopping/balance";
 
+interface MemberDueStatus {
+  memberId: string;
+  name: string;
+  roomNumber: string;
+  paid: boolean;
+}
+
 export function DuesCard({
   year,
   month,
   amountYen,
   myPaid,
-  paidCount,
-  totalMembers,
-  unpaidNames,
+  memberStatuses,
   monthlyRows,
 }: {
   year: number;
   month: number;
   amountYen: number;
   myPaid: boolean;
-  paidCount: number;
-  totalMembers: number;
-  unpaidNames: string[];
+  memberStatuses: MemberDueStatus[];
   monthlyRows: MonthlyBalanceRow[];
 }) {
   const { t } = useI18n();
@@ -43,6 +46,7 @@ export function DuesCard({
   }
 
   const currentBalance = monthlyRows.at(-1)?.balance ?? 0;
+  const paidCount = memberStatuses.filter((m) => m.paid).length;
 
   return (
     <section className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-white p-4 shadow-sm">
@@ -58,7 +62,8 @@ export function DuesCard({
 
       <div className="flex items-center justify-between">
         <span className="text-sm">
-          {t("shopping.duesAmount", { amount: amountYen })} / {t("shopping.duesPaidCount", { paid: paidCount, total: totalMembers })}
+          {t("shopping.duesAmount", { amount: amountYen })} /{" "}
+          {t("shopping.duesPaidCount", { paid: paidCount, total: memberStatuses.length })}
         </span>
         <button
           onClick={togglePaid}
@@ -71,11 +76,26 @@ export function DuesCard({
         </button>
       </div>
 
-      {unpaidNames.length > 0 && (
-        <p className="rounded-lg bg-surface-muted px-3 py-2 text-xs text-foreground/70">
-          {t("shopping.unpaidMembers", { names: unpaidNames.join(t("common.listSeparator")) })}
-        </p>
-      )}
+      {/* 払った人は薄く目立たなくし、まだの人が自然と浮き上がるようにする */}
+      <ul className="grid grid-cols-2 gap-x-3 gap-y-1 rounded-lg bg-surface-muted p-3 text-xs">
+        {memberStatuses.map((m) => (
+          <li
+            key={m.memberId}
+            className={`flex items-center gap-1.5 transition-opacity ${m.paid ? "opacity-40" : ""}`}
+          >
+            <span
+              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                m.paid ? "bg-foreground/30 text-white" : "bg-warning text-white"
+              }`}
+            >
+              {m.paid ? "✓" : "!"}
+            </span>
+            <span className={m.paid ? "text-foreground/50" : "font-bold text-foreground"}>
+              {m.roomNumber} {m.name}
+            </span>
+          </li>
+        ))}
+      </ul>
 
       <details className="text-sm">
         <summary className="cursor-pointer text-foreground/60">{t("shopping.showHistory")}</summary>

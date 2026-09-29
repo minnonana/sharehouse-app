@@ -3,10 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { sendPushToHouse } from "@/lib/push/send";
 import { pushMessages, localize } from "@/lib/push/messages";
+import { translateText } from "@/lib/translate/translate";
 
-// 掲示板への投稿を作成する。
-// 翻訳は第3段階で自動翻訳APIに差し替える前提のプレースホルダー実装
-// （今は原文をそのまま両言語欄にコピーしておく）。
+// 掲示板への投稿を作成する。日本語⇄英語を自動翻訳して両方保存する。
 export async function POST(request: Request) {
   const ctx = await getCurrentMember();
   if (!ctx) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
@@ -22,6 +21,8 @@ export async function POST(request: Request) {
 
   const supabase = await createClient();
   const originalLang = ctx.member.display_language;
+  const targetLang = originalLang === "ja" ? "en" : "ja";
+  const translated = await translateText(body, targetLang);
 
   const { data: post, error } = await supabase
     .from("board_posts")
@@ -30,9 +31,8 @@ export async function POST(request: Request) {
       author_id: ctx.member.id,
       original_lang: originalLang,
       body_original: body,
-      // TODO(第3段階): 自動翻訳APIに置き換える
-      body_ja: originalLang === "ja" ? body : null,
-      body_en: originalLang === "en" ? body : null,
+      body_ja: originalLang === "ja" ? body : translated,
+      body_en: originalLang === "en" ? body : translated,
       is_important: !!isImportant,
     })
     .select()

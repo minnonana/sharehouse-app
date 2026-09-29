@@ -137,6 +137,8 @@ export interface ShoppingItem {
   id: string;
   house_id: string;
   name: string;
+  name_ja: string | null;
+  name_en: string | null;
   memo: string | null;
   photo_url: string | null;
   status: ShoppingItemStatus;

@@ -12,7 +12,7 @@ interface Row {
 }
 
 export function ShoppingChecklist({ rows, canSettle }: { rows: Row[]; canSettle: boolean }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const router = useRouter();
   const [openAmountFor, setOpenAmountFor] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
@@ -77,6 +77,7 @@ export function ShoppingChecklist({ rows, canSettle }: { rows: Row[]; canSettle:
         const isDone = item.status === "done" || item.status === "settled";
         const isMineToBuy = item.status === "in_progress";
         const checked = isDone;
+        const displayName = (locale === "ja" ? item.name_ja : item.name_en) || item.name;
 
         return (
           <li key={item.id} className="px-4 py-3">
@@ -89,7 +90,7 @@ export function ShoppingChecklist({ rows, canSettle }: { rows: Row[]; canSettle:
                 className="mt-1 h-5 w-5 shrink-0 accent-[color:var(--color-primary)]"
               />
               <div className="min-w-0 flex-1">
-                <p className={`font-bold ${isDone ? "text-foreground/40 line-through" : ""}`}>{item.name}</p>
+                <p className={`font-bold ${isDone ? "text-foreground/40 line-through" : ""}`}>{displayName}</p>
                 <p className="text-xs text-foreground/50">
                   {t("shopping.addedBy", { name: createdByName })}
                   {assigneeName && !isDone && ` / ${t("shopping.assignedTo", { name: assigneeName })}`}

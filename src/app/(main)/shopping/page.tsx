@@ -99,11 +99,15 @@ export default async function ShoppingPage() {
             <T k="shopping.showSettled" />
           </summary>
           <ul className="mt-2 flex flex-col gap-2">
-            {settledItems.map((item) => (
-              <li key={item.id} className="rounded-lg bg-surface-muted px-3 py-2 text-xs text-foreground/60">
-                {item.name} — ¥{item.amount_yen?.toLocaleString()}
-              </li>
-            ))}
+            {settledItems.map((item) => {
+              const displayName =
+                (ctx.member.display_language === "ja" ? item.name_ja : item.name_en) || item.name;
+              return (
+                <li key={item.id} className="rounded-lg bg-surface-muted px-3 py-2 text-xs text-foreground/60">
+                  {displayName} — ¥{item.amount_yen?.toLocaleString()}
+                </li>
+              );
+            })}
           </ul>
         </details>
       )}

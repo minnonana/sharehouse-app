@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { BoardPostForm } from "@/components/BoardPostForm";
 import { MarkReadButton } from "@/components/MarkReadButton";
+import { BoardPostBody } from "@/components/BoardPostBody";
 import { T } from "@/components/T";
 import type { BoardPost, Member } from "@/types/database";
 
@@ -54,7 +55,12 @@ export default async function BoardPage() {
                 <span>{memberNameById.get(post.author_id) ?? "?"}</span>
                 <span>{new Date(post.created_at).toLocaleString(dateLocale, { timeZone: "Asia/Tokyo" })}</span>
               </div>
-              <p className="whitespace-pre-wrap text-sm">{body}</p>
+              <BoardPostBody
+                translatedBody={body}
+                originalBody={post.body_original}
+                originalLang={post.original_lang}
+                viewerLang={ctx.member.display_language}
+              />
               {post.is_important && (
                 <div className="mt-3">
                   <MarkReadButton postId={post.id} alreadyRead={readPostIds.has(post.id)} />

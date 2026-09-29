@@ -165,7 +165,7 @@ export default async function DutyPage() {
                   <li
                     key={room}
                     className={`flex flex-col gap-1 rounded-lg px-3 py-2 text-sm transition-opacity ${
-                      isMine ? "bg-primary text-white font-bold" : "bg-surface-muted"
+                      isMine ? "border-l-4 border-primary bg-surface-muted" : "bg-surface-muted"
                     } ${faded ? "opacity-40" : ""}`}
                   >
                     <div className="flex items-center justify-between">
@@ -173,11 +173,7 @@ export default async function DutyPage() {
                         {room} {roomMember?.name ?? ""}
                       </span>
                       <span className="flex items-center gap-2">
-                        <span
-                          className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
-                            isMine ? "bg-white text-primary" : "bg-primary text-white"
-                          }`}
-                        >
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                           {DUTY_LABELS[dutyKey].short}
                         </span>
                         {dutyLabel(dutyKey)}
@@ -188,11 +184,7 @@ export default async function DutyPage() {
                           </span>
                         )}
                         {isPendingDisplay && !isOverdue && (
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              isMine ? "bg-white text-primary" : "bg-warning text-white"
-                            }`}
-                          >
+                          <span className="rounded-full bg-warning px-2 py-0.5 text-[10px] font-bold text-white">
                             <T k="duty.notYet" />
                           </span>
                         )}

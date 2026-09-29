@@ -4,20 +4,27 @@ import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { sendPushToHouse } from "@/lib/push/send";
 import { pushMessages, localize } from "@/lib/push/messages";
 import { translateText } from "@/lib/translate/translate";
+import type { BoardPostCategory } from "@/types/database";
+
+const VALID_CATEGORIES: BoardPostCategory[] = ["rule", "guest", "repair", "other"];
 
 // 掲示板への投稿を作成する。日本語⇄英語を自動翻訳して両方保存する。
 export async function POST(request: Request) {
   const ctx = await getCurrentMember();
   if (!ctx) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
 
-  const { body, isImportant } = (await request.json()) as {
+  const { body, isImportant, category } = (await request.json()) as {
     body: string;
     isImportant: boolean;
+    category?: BoardPostCategory;
   };
 
   if (!body?.trim()) {
     return NextResponse.json({ error: "empty_body" }, { status: 400 });
   }
+
+  const safeCategory: BoardPostCategory =
+    category && VALID_CATEGORIES.includes(category) ? category : "other";
 
   const supabase = await createClient();
   const originalLang = ctx.member.display_language;
@@ -34,6 +41,7 @@ export async function POST(request: Request) {
       body_ja: originalLang === "ja" ? body : translated,
       body_en: originalLang === "en" ? body : translated,
       is_important: !!isImportant,
+      category: safeCategory,
     })
     .select()
     .single();

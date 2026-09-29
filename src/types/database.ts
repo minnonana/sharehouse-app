@@ -109,6 +109,8 @@ export interface WasherStatusRow {
   updated_at: string;
 }
 
+export type BoardPostCategory = "rule" | "guest" | "repair" | "other";
+
 export interface BoardPost {
   id: string;
   house_id: string;
@@ -118,6 +120,7 @@ export interface BoardPost {
   body_ja: string | null;
   body_en: string | null;
   is_important: boolean;
+  category: BoardPostCategory;
   created_at: string;
 }
 

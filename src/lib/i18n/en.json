@@ -105,6 +105,12 @@
     "showTranslated": "Show translation",
     "markRead": "Mark as read",
     "noPosts": "No posts yet",
+    "categoryLabel": "Category",
+    "categoryAll": "All",
+    "categoryRule": "Rules",
+    "categoryGuest": "Guests",
+    "categoryRepair": "Repairs",
+    "categoryOther": "Other",
     "templates": {
       "toiletPaperEmpty": "We're out of toilet paper",
       "guestComing": "I'll have a guest coming",

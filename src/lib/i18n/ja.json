@@ -105,6 +105,12 @@
     "showTranslated": "翻訳を見る",
     "markRead": "読んだ",
     "noPosts": "まだ投稿はありません",
+    "categoryLabel": "カテゴリ",
+    "categoryAll": "すべて",
+    "categoryRule": "ルールについて",
+    "categoryGuest": "来客について",
+    "categoryRepair": "修理・工事について",
+    "categoryOther": "その他",
     "templates": {
       "toiletPaperEmpty": "トイレットペーパーが切れました",
       "guestComing": "来客の予定があります",

@@ -22,24 +22,24 @@ export function ShoppingChecklist({ rows, canSettle }: { rows: Row[]; canSettle:
     return <p className="text-sm text-foreground/50">{t("shopping.noItems")}</p>;
   }
 
-  // チェックを入れる = 自分が買った、という1アクションにまとめる。
-  // まだ誰も対応していなければ最初に「担当」を確定させ、続けて金額入力欄を開く。
-  async function handleCheck(item: ShoppingItem) {
-    if (item.status === "pending") {
-      setLoadingId(item.id);
-      try {
-        const res = await fetch(`/api/shopping/${item.id}/claim`, { method: "POST" });
-        if (!res.ok) {
-          router.refresh();
-          return;
-        }
-        setOpenAmountFor(item.id);
-      } finally {
-        setLoadingId(null);
+  // 「行けるよ」: 自分が担当になることを明示するボタン（最初に押した1人が担当）
+  async function claim(itemId: string) {
+    setLoadingId(itemId);
+    try {
+      const res = await fetch(`/api/shopping/${itemId}/claim`, { method: "POST" });
+      if (res.ok) {
+        setOpenAmountFor(itemId);
       }
-      return;
+      // 成功・失敗どちらでも最新の状態（自分が担当になった/すでに他の人が担当済み）を反映する
+      router.refresh();
+    } finally {
+      setLoadingId(null);
     }
-    // 既に自分が担当中なら、金額入力へ
+  }
+
+  // 担当中の品目のチェック: 買い終わったことの報告（金額入力）
+  function handleCheck(item: ShoppingItem) {
+    if (item.status !== "in_progress") return;
     setOpenAmountFor(item.id);
   }
 
@@ -75,20 +75,31 @@ export function ShoppingChecklist({ rows, canSettle }: { rows: Row[]; canSettle:
     <ul className="divide-y divide-border rounded-xl border border-border bg-white shadow-sm">
       {rows.map(({ item, assigneeName, createdByName }) => {
         const isDone = item.status === "done" || item.status === "settled";
+        const isPending = item.status === "pending";
         const isMineToBuy = item.status === "in_progress";
-        const checked = isDone;
         const displayName = (locale === "ja" ? item.name_ja : item.name_en) || item.name;
 
         return (
           <li key={item.id} className="px-4 py-3">
             <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                checked={checked}
-                disabled={loadingId === item.id}
-                onChange={() => !isDone && handleCheck(item)}
-                className="mt-1 h-5 w-5 shrink-0 accent-[color:var(--color-primary)]"
-              />
+              {isPending ? (
+                <button
+                  onClick={() => claim(item.id)}
+                  disabled={loadingId === item.id}
+                  className="mt-0.5 shrink-0 rounded-full bg-primary px-3 py-1 text-xs font-bold text-white disabled:opacity-50"
+                >
+                  {t("shopping.iCanGo")}
+                </button>
+              ) : (
+                <input
+                  type="checkbox"
+                  checked={isDone}
+                  disabled={loadingId === item.id || isDone}
+                  onChange={() => handleCheck(item)}
+                  className="mt-1 h-5 w-5 shrink-0 accent-[color:var(--color-primary)]"
+                />
+              )}
+
               <div className="min-w-0 flex-1">
                 <p className={`font-bold ${isDone ? "text-foreground/40 line-through" : ""}`}>{displayName}</p>
                 <p className="text-xs text-foreground/50">

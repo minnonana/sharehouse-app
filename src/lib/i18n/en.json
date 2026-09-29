@@ -25,7 +25,21 @@
     "addToHomeTitle": "Please add this app to your home screen",
     "addToHomeBody": "On iPhone, use Safari's share button to \"Add to Home Screen\", then open it from that icon before joining.",
     "openedFromBrowser": "This page was opened from a browser",
-    "createHouseLink": "Setting up a house as a representative? Click here"
+    "createHouseLink": "Setting up a house as a representative? Click here",
+    "handoverLink": "Got a new phone or reinstalled the app? Click here"
+  },
+  "handover": {
+    "title": "Return with a handover code",
+    "subtitle": "Enter the 6-digit handover code (valid for 24 hours) issued from Settings.",
+    "codeLabel": "Handover code (6 digits)",
+    "submit": "Continue",
+    "backToJoin": "Back to the join screen"
+  },
+  "errors": {
+    "invalid_or_expired_code": "This code is invalid or has expired.",
+    "member_not_found_or_left": "That member could not be found (they may have already left).",
+    "owner_count_would_drop_below_two": "There must always be at least 2 representatives, so this member can't leave. Make someone else a representative first.",
+    "forbidden": "You don't have permission to do this."
   },
   "createHouse": {
     "title": "Create a new house",
@@ -151,6 +165,7 @@
     "issue": "Issue",
     "reissue": "Reissue",
     "handover": "Issue handover code",
+    "handoverHint": "Issue a 6-digit handover code (valid for 24 hours) to use when you get a new phone or reinstall the app.",
     "leave": "Leave the house",
     "dadsCreditPrefix": "Design inspired by the",
     "dadsCreditLinkText": "Japan Digital Agency Design System (DADS)",

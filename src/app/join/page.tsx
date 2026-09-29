@@ -125,6 +125,11 @@ export default function JoinPage() {
           {t("join.createHouseLink")}
         </Link>
       </p>
+      <p className="mt-2 text-center text-sm text-foreground/70">
+        <Link href="/handover" className="underline">
+          {t("join.handoverLink")}
+        </Link>
+      </p>
     </main>
   );
 }

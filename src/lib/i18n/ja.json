@@ -25,7 +25,21 @@
     "addToHomeTitle": "ホーム画面に追加してください",
     "addToHomeBody": "iPhoneの方は、Safariの共有ボタンから「ホーム画面に追加」を選び、ホーム画面のアイコンから開き直してから参加してください。",
     "openedFromBrowser": "この画面はブラウザから開かれています",
-    "createHouseLink": "代表者として新しくハウスを作る場合はこちら"
+    "createHouseLink": "代表者として新しくハウスを作る場合はこちら",
+    "handoverLink": "機種変更・アプリ削除後に戻る場合はこちら"
+  },
+  "handover": {
+    "title": "引き継ぎコードで戻る",
+    "subtitle": "設定画面で発行した6桁の引き継ぎコード（有効期限24時間）を入力してください。",
+    "codeLabel": "引き継ぎコード（6桁）",
+    "submit": "戻る",
+    "backToJoin": "ハウスに参加する画面に戻る"
+  },
+  "errors": {
+    "invalid_or_expired_code": "コードが無効か、有効期限が切れています。",
+    "member_not_found_or_left": "対象のメンバーが見つかりません（既に退去済みの可能性があります）。",
+    "owner_count_would_drop_below_two": "代表者は常に2人以上必要なため、退去できません。先に別の人を代表者にしてください。",
+    "forbidden": "この操作を行う権限がありません。"
   },
   "createHouse": {
     "title": "ハウスを新しく作る",
@@ -151,6 +165,7 @@
     "issue": "発行する",
     "reissue": "再発行する",
     "handover": "引き継ぎコード発行",
+    "handoverHint": "機種変更・アプリ削除に備えて、6桁の引き継ぎコードを発行できます（有効期限24時間）。",
     "leave": "退去する",
     "dadsCreditPrefix": "デザインは",
     "dadsCreditLinkText": "デジタル庁デザインシステム（DADS）",

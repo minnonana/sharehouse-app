@@ -5,7 +5,8 @@ import { getTodayJst } from "@/lib/date/jst";
 import { WasherCard } from "@/components/WasherCard";
 import { CompleteDutyButton } from "@/components/CompleteDutyButton";
 import { T } from "@/components/T";
-import type { Member, WasherStatusRow } from "@/types/database";
+import { buildMonthlyBalance } from "@/lib/shopping/balance";
+import type { Member, MonthlyDue, WasherStatusRow } from "@/types/database";
 
 export default async function HomePage() {
   const ctx = await getCurrentMember();
@@ -53,6 +54,33 @@ export default async function HomePage() {
     usedByName = usedByMember?.name ?? null;
   }
 
+  const [year, month] = today.split("-").map(Number);
+  const { data: allDues } = await supabase
+    .from("monthly_dues")
+    .select("*")
+    .eq("house_id", ctx.house.id)
+    .returns<MonthlyDue[]>();
+  const { data: allSpends } = await supabase
+    .from("shopping_items")
+    .select("amount_yen, completed_at")
+    .eq("house_id", ctx.house.id)
+    .in("status", ["done", "settled"]);
+  const firstDue = (allDues ?? []).reduce<{ year: number; month: number } | null>((min, d) => {
+    if (!min || d.year < min.year || (d.year === min.year && d.month < min.month)) {
+      return { year: d.year, month: d.month };
+    }
+    return min;
+  }, null);
+  const monthlyRows = buildMonthlyBalance(
+    allDues ?? [],
+    allSpends ?? [],
+    firstDue?.year ?? year,
+    firstDue?.month ?? month,
+    year,
+    month,
+  );
+  const currentBalance = monthlyRows.at(-1)?.balance ?? 0;
+
   return (
     <div className="flex flex-col gap-4">
       <header>
@@ -85,6 +113,14 @@ export default async function HomePage() {
       </section>
 
       <WasherCard washer={washer ?? null} usedByName={usedByName} />
+
+      <a
+        href="/shopping"
+        className="flex items-center justify-between rounded-xl border border-border bg-white p-4 shadow-sm"
+      >
+        <T k="shopping.title" as="span" className="text-sm font-bold text-foreground/70" />
+        <span className="font-bold text-primary-dark">¥{currentBalance.toLocaleString()}</span>
+      </a>
     </div>
   );
 }

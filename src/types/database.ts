@@ -127,6 +127,41 @@ export interface BoardPostRead {
   read_at: string;
 }
 
+// =========================================================
+// 第3段階: 買い物帳・共用費
+// =========================================================
+
+export type ShoppingItemStatus = "pending" | "in_progress" | "done" | "settled";
+
+export interface ShoppingItem {
+  id: string;
+  house_id: string;
+  name: string;
+  memo: string | null;
+  photo_url: string | null;
+  status: ShoppingItemStatus;
+  created_by: string;
+  assignee_id: string | null;
+  amount_yen: number | null;
+  receipt_photo_url: string | null;
+  claimed_at: string | null;
+  completed_at: string | null;
+  settled_at: string | null;
+  created_at: string;
+}
+
+export interface MonthlyDue {
+  id: string;
+  house_id: string;
+  member_id: string;
+  year: number;
+  month: number;
+  amount_yen: number;
+  paid: boolean;
+  paid_at: string | null;
+  created_at: string;
+}
+
 // Supabase JS の createClient<Database>() に渡すための最小限の型。
 // 生成コマンド（`supabase gen types typescript`）が使えるようになったら置き換える。
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

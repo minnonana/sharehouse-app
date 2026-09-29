@@ -10,6 +10,7 @@
   "nav": {
     "home": "ホーム",
     "duty": "当番",
+    "shopping": "買い物",
     "board": "掲示板",
     "settings": "設定"
   },
@@ -92,6 +93,40 @@
       "toiletPaperEmpty": "トイレットペーパーが切れました",
       "guestComing": "来客の予定があります",
       "repairVisit": "修理業者が来ます"
+    }
+  },
+  "shopping": {
+    "title": "買い物",
+    "addPlaceholder": "品名を入力",
+    "add": "追加",
+    "iCanGo": "行けるよ",
+    "markComplete": "完了",
+    "markSettled": "精算済みにする",
+    "noItems": "買い物帳は空です",
+    "showSettled": "精算済みの履歴を見る",
+    "statusPending": "未対応",
+    "statusInProgress": "担当中",
+    "statusDone": "完了",
+    "statusSettled": "精算済み",
+    "addedBy": "{name}さんが追加",
+    "assignedTo": "{name}さんが担当",
+    "duesTitle": "{year}年{month}月の共用費",
+    "duesAmount": "1人{amount}円",
+    "duesPaidCount": "払った人 {paid}/{total}人",
+    "duesMarkPaid": "払った",
+    "duesUndoPaid": "取り消す",
+    "currentBalance": "今月の残高: ¥{balance}",
+    "showHistory": "月ごとの履歴を見る",
+    "colMonth": "月",
+    "colCarryover": "繰越",
+    "colCollected": "集まった額",
+    "colSpent": "使った額",
+    "colBalance": "残高",
+    "templates": {
+      "toiletPaper": "トイレットペーパー",
+      "trashBags": "ゴミ袋",
+      "detergent": "洗剤",
+      "sponge": "スポンジ"
     }
   },
   "settings": {

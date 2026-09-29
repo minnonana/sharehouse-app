@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 const TABS = [
   { href: "/home", key: "nav.home", icon: "🏠" },
   { href: "/duty", key: "nav.duty", icon: "🧹" },
+  { href: "/shopping", key: "nav.shopping", icon: "🛒" },
   { href: "/board", key: "nav.board", icon: "📋" },
   { href: "/settings", key: "nav.settings", icon: "⚙️" },
 ] as const;

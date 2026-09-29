@@ -71,6 +71,30 @@ export const pushMessages = {
       url: "/duty",
     },
   }),
+  shoppingItemAdded: (byName: string, itemName: string): Record<Language, PushPayload> => ({
+    ja: { title: "🛒 買い物帳に追加されました", body: `${byName}さんが「${itemName}」を追加しました。`, url: "/shopping" },
+    en: { title: "🛒 New shopping item", body: `${byName} added "${itemName}".`, url: "/shopping" },
+  }),
+
+  shoppingItemClaimed: (byName: string, itemName: string): Record<Language, PushPayload> => ({
+    ja: { title: "🛒 「行けるよ」が押されました", body: `${byName}さんが「${itemName}」を買いに行きます。`, url: "/shopping" },
+    en: { title: "🛒 Someone will buy it", body: `${byName} will get "${itemName}".`, url: "/shopping" },
+  }),
+
+  shoppingItemUnclaimed: (itemName: string): Record<Language, PushPayload> => ({
+    ja: { title: "🛒 まだ誰も対応していません", body: `「${itemName}」に誰も「行けるよ」を押していません。`, url: "/shopping" },
+    en: { title: "🛒 Still unclaimed", body: `No one has claimed "${itemName}" yet.`, url: "/shopping" },
+  }),
+
+  monthlyDueAnnouncement: (amount: number): Record<Language, PushPayload> => ({
+    ja: { title: "💰 今月の共用費", body: `今月の共用費 ${amount}円をお願いします。`, url: "/shopping" },
+    en: { title: "💰 This month's shared fee", body: `Please pay this month's shared fee (¥${amount}).`, url: "/shopping" },
+  }),
+
+  monthlyDueUnpaid: (amount: number): Record<Language, PushPayload> => ({
+    ja: { title: "💰 共用費が未払いです", body: `今月の共用費 ${amount}円がまだ未払いです。`, url: "/shopping" },
+    en: { title: "💰 Shared fee unpaid", body: `This month's shared fee (¥${amount}) is still unpaid.`, url: "/shopping" },
+  }),
 } as const;
 
 export function localize(map: Record<Language, PushPayload>) {

@@ -10,6 +10,7 @@
   "nav": {
     "home": "Home",
     "duty": "Duty",
+    "shopping": "Shopping",
     "board": "Board",
     "settings": "Settings"
   },
@@ -92,6 +93,40 @@
       "toiletPaperEmpty": "We're out of toilet paper",
       "guestComing": "I'll have a guest coming",
       "repairVisit": "A repair person is coming"
+    }
+  },
+  "shopping": {
+    "title": "Shopping",
+    "addPlaceholder": "Item name",
+    "add": "Add",
+    "iCanGo": "I can get it",
+    "markComplete": "Mark complete",
+    "markSettled": "Mark settled",
+    "noItems": "The shopping list is empty",
+    "showSettled": "Show settled history",
+    "statusPending": "Unclaimed",
+    "statusInProgress": "In progress",
+    "statusDone": "Done",
+    "statusSettled": "Settled",
+    "addedBy": "Added by {name}",
+    "assignedTo": "Assigned to {name}",
+    "duesTitle": "Shared fee for {year}/{month}",
+    "duesAmount": "¥{amount} per person",
+    "duesPaidCount": "Paid: {paid}/{total}",
+    "duesMarkPaid": "I paid",
+    "duesUndoPaid": "Undo",
+    "currentBalance": "This month's balance: ¥{balance}",
+    "showHistory": "Show monthly history",
+    "colMonth": "Month",
+    "colCarryover": "Carryover",
+    "colCollected": "Collected",
+    "colSpent": "Spent",
+    "colBalance": "Balance",
+    "templates": {
+      "toiletPaper": "Toilet paper",
+      "trashBags": "Trash bags",
+      "detergent": "Detergent",
+      "sponge": "Sponge"
     }
   },
   "settings": {

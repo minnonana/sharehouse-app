@@ -29,12 +29,21 @@
   - 日曜朝9時に全員へ今週の当番
 - 設定画面で通知のオン・オフを切り替え可能。iPhoneはホーム画面に追加していない場合、案内文を表示
 
-未実装（第3段階、詳細は `docs/spec-draft.md` 参照）:
+## 第3段階（実装済み）
 
-- 買い物帳・共用費
+- 買い物帳: 品目追加（定型ボタン: トイレットペーパー/ゴミ袋/洗剤/スポンジ）、「行けるよ」で担当確定、
+  金額入力して完了、代表者が精算済みにする。状態ごとに通知（追加/行けるよ）を送信
+- 共用費: 毎月1人500円を「払った」で自己チェック、払った人数を表示、月ごとの繰越・集まった額・
+  使った額・残高の一覧、今月の残高をホームにも表示
+- 会計担当は仕様書で未決事項だったため、暫定的に代表者(is_owner)が精算操作を行う設計にしている
+
+未実装（詳細は `docs/spec-draft.md` 参照）:
+
 - 掲示板の自動翻訳（現状は原文をそのまま表示するプレースホルダー）
 - 引き継ぎコード、退去処理のUI
 - PWAアイコン画像（`public/manifest.json` が参照する `icons/icon-192.png` 等は未生成）
+- 買い物帳の「3日間未対応なら再通知」「毎月1日の共用費通知」「5日の未払いリマインド」は
+  scheduled-notifications Edge Functionへの組み込みが未着手
 
 ## セットアップ
 
@@ -48,7 +57,7 @@ npm install
 
 1. [Supabase](https://supabase.com) でアカウントを作成し、新しいプロジェクトを作る（リージョンは東京 = ap-northeast-1）
 2. `Authentication > Sign In / Providers` で **Anonymous Sign-Ins** を有効にする
-3. SQL Editor で `supabase/migrations/0001_init.sql`、続けて `supabase/migrations/0002_push_notifications.sql` の内容を実行する
+3. SQL Editor で `supabase/migrations/` 配下のファイルを番号順（0001 → 0002 → 0003）に実行する
 
 ### 3. 環境変数
 

@@ -5,7 +5,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "back": "Back"
+    "back": "Back",
+    "listSeparator": ", "
   },
   "nav": {
     "home": "Home",
@@ -116,6 +117,8 @@
     "duesMarkPaid": "I paid",
     "duesUndoPaid": "Undo",
     "currentBalance": "This month's balance: ¥{balance}",
+    "currentBalanceLabel": "Current balance",
+    "unpaidMembers": "Not paid yet: {names}",
     "showHistory": "Show monthly history",
     "colMonth": "Month",
     "colCarryover": "Carryover",

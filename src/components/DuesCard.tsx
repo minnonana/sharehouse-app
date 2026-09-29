@@ -12,6 +12,7 @@ export function DuesCard({
   myPaid,
   paidCount,
   totalMembers,
+  unpaidNames,
   monthlyRows,
 }: {
   year: number;
@@ -20,6 +21,7 @@ export function DuesCard({
   myPaid: boolean;
   paidCount: number;
   totalMembers: number;
+  unpaidNames: string[];
   monthlyRows: MonthlyBalanceRow[];
 }) {
   const { t } = useI18n();
@@ -44,6 +46,14 @@ export function DuesCard({
 
   return (
     <section className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-white p-4 shadow-sm">
+      {/* 残高をひと目で分かるように一番目立つ位置に大きく表示 */}
+      <div className="flex items-center justify-between rounded-lg bg-primary-light px-4 py-3">
+        <span className="text-sm font-bold text-foreground/70">{t("shopping.currentBalanceLabel")}</span>
+        <span className={`text-2xl font-bold ${currentBalance < 0 ? "text-danger" : "text-primary-dark"}`}>
+          ¥{currentBalance.toLocaleString()}
+        </span>
+      </div>
+
       <h2 className="font-bold">{t("shopping.duesTitle", { year, month })}</h2>
 
       <div className="flex items-center justify-between">
@@ -61,9 +71,11 @@ export function DuesCard({
         </button>
       </div>
 
-      <p className="text-sm font-bold text-primary-dark">
-        {t("shopping.currentBalance", { balance: currentBalance.toLocaleString() })}
-      </p>
+      {unpaidNames.length > 0 && (
+        <p className="rounded-lg bg-surface-muted px-3 py-2 text-xs text-foreground/70">
+          {t("shopping.unpaidMembers", { names: unpaidNames.join(t("common.listSeparator")) })}
+        </p>
+      )}
 
       <details className="text-sm">
         <summary className="cursor-pointer text-foreground/60">{t("shopping.showHistory")}</summary>

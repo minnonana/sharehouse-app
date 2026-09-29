@@ -5,7 +5,8 @@
     "save": "保存",
     "cancel": "キャンセル",
     "confirm": "確認",
-    "back": "戻る"
+    "back": "戻る",
+    "listSeparator": "、"
   },
   "nav": {
     "home": "ホーム",
@@ -116,6 +117,8 @@
     "duesMarkPaid": "払った",
     "duesUndoPaid": "取り消す",
     "currentBalance": "今月の残高: ¥{balance}",
+    "currentBalanceLabel": "今の残高",
+    "unpaidMembers": "未払い: {names}",
     "showHistory": "月ごとの履歴を見る",
     "colMonth": "月",
     "colCarryover": "繰越",

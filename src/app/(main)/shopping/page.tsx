@@ -3,7 +3,7 @@ import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { getTodayJst } from "@/lib/date/jst";
 import { buildMonthlyBalance } from "@/lib/shopping/balance";
 import { ShoppingItemForm } from "@/components/ShoppingItemForm";
-import { ShoppingItemCard } from "@/components/ShoppingItemCard";
+import { ShoppingChecklist } from "@/components/ShoppingChecklist";
 import { DuesCard } from "@/components/DuesCard";
 import { T } from "@/components/T";
 import type { Member, MonthlyDue, ShoppingItem } from "@/types/database";
@@ -57,7 +57,12 @@ export default async function ShoppingPage() {
   const monthlyRows = buildMonthlyBalance(allDues ?? [], allSpends ?? [], startYear, startMonth, year, month);
 
   const myDue = (allDues ?? []).find((d) => d.member_id === ctx.member.id && d.year === year && d.month === month);
-  const paidCount = (allDues ?? []).filter((d) => d.year === year && d.month === month && d.paid).length;
+  const thisMonthDues = (allDues ?? []).filter((d) => d.year === year && d.month === month);
+  const paidCount = thisMonthDues.filter((d) => d.paid).length;
+  const paidMemberIds = new Set(thisMonthDues.filter((d) => d.paid).map((d) => d.member_id));
+  const unpaidNames = (members ?? [])
+    .filter((m) => !paidMemberIds.has(m.id))
+    .map((m) => m.name);
 
   const activeItems = (items ?? []).filter((i) => i.status !== "settled");
   const settledItems = (items ?? []).filter((i) => i.status === "settled");
@@ -73,23 +78,20 @@ export default async function ShoppingPage() {
         myPaid={myDue?.paid ?? false}
         paidCount={paidCount}
         totalMembers={totalMembers}
+        unpaidNames={unpaidNames}
         monthlyRows={monthlyRows}
       />
 
       <ShoppingItemForm />
 
-      <ul className="flex flex-col gap-3">
-        {activeItems.map((item) => (
-          <ShoppingItemCard
-            key={item.id}
-            item={item}
-            assigneeName={item.assignee_id ? memberById.get(item.assignee_id)?.name ?? null : null}
-            createdByName={memberById.get(item.created_by)?.name ?? "?"}
-            canSettle={ctx.member.is_owner}
-          />
-        ))}
-        {activeItems.length === 0 && <T k="shopping.noItems" as="p" className="text-sm text-foreground/50" />}
-      </ul>
+      <ShoppingChecklist
+        rows={activeItems.map((item) => ({
+          item,
+          assigneeName: item.assignee_id ? memberById.get(item.assignee_id)?.name ?? null : null,
+          createdByName: memberById.get(item.created_by)?.name ?? "?",
+        }))}
+        canSettle={ctx.member.is_owner}
+      />
 
       {settledItems.length > 0 && (
         <details className="mt-4 text-sm">

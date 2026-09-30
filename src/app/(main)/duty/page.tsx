@@ -7,6 +7,7 @@ import {
   ROOM_NUMBERS,
   TRASH_LABELS,
   getWeekStartDate,
+  getWedFriDutyLabel,
   type DutyKey,
   type RoomNumber,
 } from "@/lib/duty/rotation";
@@ -161,6 +162,12 @@ export default async function DutyPage() {
                 // 完了済みは薄く目立たなくし、まだの人が自然と浮き上がるようにする
                 const faded = isCurrent && dutyKey !== "rest" && isDone;
 
+                // 「水金」はその週に実際出すゴミの種類（資源・あきびん等）で具体的に表示する
+                const displayLabel =
+                  dutyKey === "wed_fri"
+                    ? getWedFriDutyLabel(week.wedFriCollections, lang)
+                    : dutyLabel(dutyKey);
+
                 return (
                   <li
                     key={room}
@@ -176,8 +183,8 @@ export default async function DutyPage() {
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                           {DUTY_LABELS[dutyKey].short}
                         </span>
-                        {dutyLabel(dutyKey)}
-                        {isDone && <span aria-label={dutyLabel(dutyKey)}>✓</span>}
+                        {displayLabel}
+                        {isDone && <span aria-label={displayLabel}>✓</span>}
                         {isOverdue && (
                           <span className="rounded-full bg-danger px-2 py-0.5 text-[10px] font-bold text-white">
                             <T k="duty.incomplete" />

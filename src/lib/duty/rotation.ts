@@ -46,8 +46,8 @@ export const DUTY_LABELS: Record<DutyKey, { ja: string; en: string; short: strin
   toilet_1f: { ja: "1Fトイレ", en: "1F Toilet", short: "T1" },
   toilet_2f: { ja: "2Fトイレ", en: "2F Toilet", short: "T2" },
   entrance: { ja: "玄関", en: "Entrance", short: "G" },
-  mon_trash: { ja: "月", en: "Mon", short: "M" },
-  thu_trash: { ja: "木", en: "Thu", short: "Th" },
+  mon_trash: { ja: "燃えるゴミ(月)", en: "Burnable trash (Mon)", short: "M" },
+  thu_trash: { ja: "燃えるゴミ(木)", en: "Burnable trash (Thu)", short: "Th" },
   wed_fri: { ja: "水金", en: "Wed/Fri", short: "WF" },
   rest: { ja: "休み", en: "Rest", short: "-" },
 };
@@ -162,7 +162,7 @@ function nthWeekdayOfMonth(
   return result;
 }
 
-interface TrashEvent {
+export interface TrashEvent {
   date: string; // YYYY-MM-DD
   kind: TrashKind;
 }
@@ -229,4 +229,19 @@ export function buildDutySchedule(
     cursor = formatDate(addDays(parseDate(cursor), 7));
   }
   return weeks;
+}
+
+/**
+ * 「水金」担当の表示名を、その週に実際に出すゴミの種類で具体化する。
+ * 例: 資源とあきびんの両方がある週は「資源・あきびん」、収集が無い週は「水金（収集なし）」。
+ */
+export function getWedFriDutyLabel(
+  collections: TrashEvent[],
+  lang: "ja" | "en",
+): string {
+  if (collections.length === 0) {
+    return lang === "ja" ? "水金（収集なし）" : "Wed/Fri (no collection)";
+  }
+  const kinds = Array.from(new Set(collections.map((c) => c.kind)));
+  return kinds.map((kind) => TRASH_LABELS[kind][lang]).join(lang === "ja" ? "・" : " / ");
 }

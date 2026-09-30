@@ -1,6 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
-import { getDutyForRoom, getWeekStartDate, DUTY_LABELS, type DutyKey } from "@/lib/duty/rotation";
+import {
+  getDutyForRoom,
+  getWeekStartDate,
+  getWedFriCollectionsForWeek,
+  getWedFriDutyLabel,
+  DUTY_LABELS,
+  type DutyKey,
+} from "@/lib/duty/rotation";
 import { getTodayJst } from "@/lib/date/jst";
 import { WasherCard } from "@/components/WasherCard";
 import { CompleteDutyButton } from "@/components/CompleteDutyButton";
@@ -17,6 +24,10 @@ export default async function HomePage() {
   const weekStart = getWeekStartDate(today);
   const dutyKey = getDutyForRoom(weekStart, ctx.member.room_number as never) as DutyKey;
   const dutyLabel = DUTY_LABELS[dutyKey];
+  const dutyDisplayName =
+    dutyKey === "wed_fri"
+      ? getWedFriDutyLabel(getWedFriCollectionsForWeek(weekStart), ctx.member.display_language)
+      : dutyLabel[ctx.member.display_language];
 
   const { data: dutyType } = await supabase
     .from("duty_types")
@@ -100,7 +111,7 @@ export default async function HomePage() {
             >
               {dutyLabel.short}
             </span>
-            <span className="text-lg font-bold">{dutyLabel[ctx.member.display_language]}</span>
+            <span className="text-lg font-bold">{dutyDisplayName}</span>
           </div>
           {dutyKey !== "rest" && (
             <CompleteDutyButton

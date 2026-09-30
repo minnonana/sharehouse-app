@@ -32,41 +32,53 @@ export default async function DutyPage() {
   const weeks = buildDutySchedule(currentWeekStart, 8);
   const currentWeek = weeks[0];
 
-  const { data: members } = await supabase
-    .from("members")
-    .select("*")
-    .eq("house_id", ctx.house.id)
-    .is("left_at", null)
-    .returns<Member[]>();
+  // 互いに依存しないクエリはPromise.allでまとめて並列実行する
+  // （順番にawaitすると往復が直列に積み上がり、遷移が遅くなる）。
+  const [
+    { data: members },
+    { data: dutyTypes },
+    { data: currentAssignments },
+    { data: pendingSwaps },
+    { data: allDoneAssignments },
+    { data: allSubstitutions },
+  ] = await Promise.all([
+    supabase
+      .from("members")
+      .select("*")
+      .eq("house_id", ctx.house.id)
+      .is("left_at", null)
+      .returns<Member[]>(),
+    supabase.from("duty_types").select("*").eq("house_id", ctx.house.id).returns<DutyType[]>(),
+    // 今週の割り当て状況（完了/未完了）
+    supabase
+      .from("duty_assignments")
+      .select("*")
+      .eq("house_id", ctx.house.id)
+      .eq("week_start_date", currentWeekStart)
+      .returns<DutyAssignment[]>(),
+    // 自分宛の交換リクエスト（保留中）
+    supabase
+      .from("duty_swap_requests")
+      .select(
+        "id, status, from_assignment:from_assignment_id(member_id, duty_type_id), to_assignment:to_assignment_id(member_id, duty_type_id)",
+      )
+      .eq("house_id", ctx.house.id)
+      .eq("status", "pending"),
+    // 完了回数・代行回数の集計
+    supabase
+      .from("duty_assignments")
+      .select("member_id")
+      .eq("house_id", ctx.house.id)
+      .eq("status", "done"),
+    supabase.from("substitutions").select("covering_member_id").eq("house_id", ctx.house.id),
+  ]);
+
   const memberByRoom = new Map((members ?? []).map((m) => [m.room_number, m]));
-
-  const { data: dutyTypes } = await supabase
-    .from("duty_types")
-    .select("*")
-    .eq("house_id", ctx.house.id)
-    .returns<DutyType[]>();
   const dutyTypeByKey = new Map((dutyTypes ?? []).map((d) => [d.key, d]));
-
-  // 今週の割り当て状況（完了/未完了）
-  const { data: currentAssignments } = await supabase
-    .from("duty_assignments")
-    .select("*")
-    .eq("house_id", ctx.house.id)
-    .eq("week_start_date", currentWeekStart)
-    .returns<DutyAssignment[]>();
 
   const statusByMemberDuty = new Map(
     (currentAssignments ?? []).map((a) => [`${a.member_id}:${a.duty_type_id}`, a.status]),
   );
-
-  // 自分宛の交換リクエスト（保留中）
-  const { data: pendingSwaps } = await supabase
-    .from("duty_swap_requests")
-    .select(
-      "id, status, from_assignment:from_assignment_id(member_id, duty_type_id), to_assignment:to_assignment_id(member_id, duty_type_id)",
-    )
-    .eq("house_id", ctx.house.id)
-    .eq("status", "pending");
 
   const memberById = new Map((members ?? []).map((m) => [m.id, m]));
   const dutyTypeById = new Map((dutyTypes ?? []).map((d) => [d.id, d]));
@@ -92,17 +104,6 @@ export default async function DutyPage() {
     ([, duty]) => duty === "rest",
   )?.[0];
   const isRestMember = ctx.member.room_number === restRoom;
-
-  // 完了回数・代行回数の集計
-  const { data: allDoneAssignments } = await supabase
-    .from("duty_assignments")
-    .select("member_id")
-    .eq("house_id", ctx.house.id)
-    .eq("status", "done");
-  const { data: allSubstitutions } = await supabase
-    .from("substitutions")
-    .select("covering_member_id")
-    .eq("house_id", ctx.house.id);
 
   const completedCountByMember = new Map<string, number>();
   (allDoneAssignments ?? []).forEach((a) => {

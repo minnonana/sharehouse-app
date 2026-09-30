@@ -16,32 +16,30 @@ export default async function ShoppingPage() {
   const today = getTodayJst();
   const [year, month] = today.split("-").map(Number);
 
-  const { data: members } = await supabase
-    .from("members")
-    .select("*")
-    .eq("house_id", ctx.house.id)
-    .is("left_at", null)
-    .returns<Member[]>();
+  // 互いに依存しないクエリはPromise.allでまとめて並列実行する
+  // （順番にawaitすると往復が直列に積み上がり、遷移が遅くなる）。
+  const [{ data: members }, { data: items }, { data: allDues }, { data: allSpends }] =
+    await Promise.all([
+      supabase
+        .from("members")
+        .select("*")
+        .eq("house_id", ctx.house.id)
+        .is("left_at", null)
+        .returns<Member[]>(),
+      supabase
+        .from("shopping_items")
+        .select("*")
+        .eq("house_id", ctx.house.id)
+        .order("created_at", { ascending: false })
+        .returns<ShoppingItem[]>(),
+      supabase.from("monthly_dues").select("*").eq("house_id", ctx.house.id).returns<MonthlyDue[]>(),
+      supabase
+        .from("shopping_items")
+        .select("amount_yen, completed_at")
+        .eq("house_id", ctx.house.id)
+        .in("status", ["done", "settled"]),
+    ]);
   const memberById = new Map((members ?? []).map((m) => [m.id, m]));
-
-  const { data: items } = await supabase
-    .from("shopping_items")
-    .select("*")
-    .eq("house_id", ctx.house.id)
-    .order("created_at", { ascending: false })
-    .returns<ShoppingItem[]>();
-
-  const { data: allDues } = await supabase
-    .from("monthly_dues")
-    .select("*")
-    .eq("house_id", ctx.house.id)
-    .returns<MonthlyDue[]>();
-
-  const { data: allSpends } = await supabase
-    .from("shopping_items")
-    .select("amount_yen, completed_at")
-    .eq("house_id", ctx.house.id)
-    .in("status", ["done", "settled"]);
 
   // 最初の活動月〜今月までの一覧を作る（データがまだ無ければ今月だけ）
   const firstDue = (allDues ?? []).reduce<{ year: number; month: number } | null>((min, d) => {

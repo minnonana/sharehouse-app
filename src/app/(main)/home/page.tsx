@@ -29,53 +29,57 @@ export default async function HomePage() {
       ? getWedFriDutyLabel(getWedFriCollectionsForWeek(weekStart), ctx.member.display_language)
       : dutyLabel[ctx.member.display_language];
 
-  const { data: dutyType } = await supabase
-    .from("duty_types")
-    .select("id")
-    .eq("house_id", ctx.house.id)
-    .eq("key", dutyKey)
-    .maybeSingle();
-
-  let alreadyDone = false;
-  if (dutyType) {
-    const { data: assignment } = await supabase
-      .from("duty_assignments")
-      .select("status")
-      .eq("house_id", ctx.house.id)
-      .eq("week_start_date", weekStart)
-      .eq("member_id", ctx.member.id)
-      .eq("duty_type_id", dutyType.id)
-      .maybeSingle();
-    alreadyDone = assignment?.status === "done";
-  }
-
-  const { data: washer } = await supabase
-    .from("washer_status")
-    .select("*")
-    .eq("house_id", ctx.house.id)
-    .maybeSingle<WasherStatusRow>();
-
-  let usedByName: string | null = null;
-  if (washer?.used_by) {
-    const { data: usedByMember } = await supabase
-      .from("members")
-      .select("name")
-      .eq("id", washer.used_by)
-      .maybeSingle<Pick<Member, "name">>();
-    usedByName = usedByMember?.name ?? null;
-  }
-
   const [year, month] = today.split("-").map(Number);
-  const { data: allDues } = await supabase
-    .from("monthly_dues")
-    .select("*")
-    .eq("house_id", ctx.house.id)
-    .returns<MonthlyDue[]>();
-  const { data: allSpends } = await supabase
-    .from("shopping_items")
-    .select("amount_yen, completed_at")
-    .eq("house_id", ctx.house.id)
-    .in("status", ["done", "settled"]);
+
+  // 互いに依存しないクエリはPromise.allでまとめて並列実行する
+  // （順番にawaitすると1回ずつSupabaseとの往復が直列に積み上がり、遷移が遅くなる）。
+  const [{ data: dutyType }, { data: washer }, { data: allDues }, { data: allSpends }] =
+    await Promise.all([
+      supabase
+        .from("duty_types")
+        .select("id")
+        .eq("house_id", ctx.house.id)
+        .eq("key", dutyKey)
+        .maybeSingle(),
+      supabase
+        .from("washer_status")
+        .select("*")
+        .eq("house_id", ctx.house.id)
+        .maybeSingle<WasherStatusRow>(),
+      supabase
+        .from("monthly_dues")
+        .select("*")
+        .eq("house_id", ctx.house.id)
+        .returns<MonthlyDue[]>(),
+      supabase
+        .from("shopping_items")
+        .select("amount_yen, completed_at")
+        .eq("house_id", ctx.house.id)
+        .in("status", ["done", "settled"]),
+    ]);
+
+  // dutyType.id / washer.used_by に依存する2つも、互いには依存しないので並列実行する
+  const [assignmentResult, usedByMemberResult] = await Promise.all([
+    dutyType
+      ? supabase
+          .from("duty_assignments")
+          .select("status")
+          .eq("house_id", ctx.house.id)
+          .eq("week_start_date", weekStart)
+          .eq("member_id", ctx.member.id)
+          .eq("duty_type_id", dutyType.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    washer?.used_by
+      ? supabase
+          .from("members")
+          .select("name")
+          .eq("id", washer.used_by)
+          .maybeSingle<Pick<Member, "name">>()
+      : Promise.resolve({ data: null }),
+  ]);
+  const alreadyDone = assignmentResult.data?.status === "done";
+  const usedByName = usedByMemberResult.data?.name ?? null;
   const firstDue = (allDues ?? []).reduce<{ year: number; month: number } | null>((min, d) => {
     if (!min || d.year < min.year || (d.year === min.year && d.month < min.month)) {
       return { year: d.year, month: d.month };

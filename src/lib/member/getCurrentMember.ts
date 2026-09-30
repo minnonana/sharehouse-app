@@ -14,12 +14,17 @@ export interface CurrentMemberContext {
  * - React の cache() でリクエスト単位にメモ化し、同じリクエスト内で
  *   layout とページの両方から呼ばれても実際の問い合わせは1回だけにする
  *   （これをしないと layout→page で毎回2重に auth+DB 往復が発生し、画面遷移が体感で遅くなる）。
+ * - auth.getUser() ではなく getSession() を使う。getUser() はSupabaseの認証サーバーに
+ *   毎回ネットワークで問い合わせて検証するため数百ms単位で遅い。セッションの検証・更新は
+ *   middleware（毎リクエスト実行）が既に行っているので、ページ側では
+ *   cookieに入っているJWTをその場でデコードするだけの getSession() で十分。
  */
 export const getCurrentMember = cache(async (): Promise<CurrentMemberContext | null> => {
   const supabase = await createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   if (!user) return null;
 

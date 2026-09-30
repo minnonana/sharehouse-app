@@ -41,19 +41,18 @@ export default async function BoardPage({
   if (activeCategory !== "all") {
     query = query.eq("category", activeCategory);
   }
-  const { data: posts } = await query.returns<BoardPost[]>();
-
-  const { data: reads } = await supabase
-    .from("board_post_reads")
-    .select("post_id")
-    .eq("member_id", ctx.member.id);
+  // 互いに依存しないクエリはPromise.allでまとめて並列実行する
+  // （順番にawaitすると往復が直列に積み上がり、遷移が遅くなる）。
+  const [{ data: posts }, { data: reads }, { data: members }] = await Promise.all([
+    query.returns<BoardPost[]>(),
+    supabase.from("board_post_reads").select("post_id").eq("member_id", ctx.member.id),
+    supabase
+      .from("members")
+      .select("id, name")
+      .eq("house_id", ctx.house.id)
+      .returns<Pick<Member, "id" | "name">[]>(),
+  ]);
   const readPostIds = new Set((reads ?? []).map((r) => r.post_id));
-
-  const { data: members } = await supabase
-    .from("members")
-    .select("id, name")
-    .eq("house_id", ctx.house.id)
-    .returns<Pick<Member, "id" | "name">[]>();
   const memberNameById = new Map((members ?? []).map((m) => [m.id, m.name]));
 
   const dateLocale = ctx.member.display_language === "ja" ? "ja-JP" : "en-US";

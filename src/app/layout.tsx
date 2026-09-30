@@ -36,6 +36,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   themeColor: "#a8460d",
+  // iPhoneのホーム画面アプリ（standalone）でホームインジケーター部分まで
+  // 背景を敷けるようにする。これが無いと env(safe-area-inset-bottom) が効かず、
+  // 下タブがホームインジケーターに近すぎてタップしづらくなる。
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

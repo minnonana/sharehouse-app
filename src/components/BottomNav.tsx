@@ -17,7 +17,10 @@ export function BottomNav() {
   const { t } = useI18n();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 border-t border-border bg-white">
+    <nav
+      className="fixed bottom-0 left-0 right-0 border-t border-border bg-white"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    >
       <div className="mx-auto flex max-w-md">
         {TABS.map((tab) => {
           const active = pathname?.startsWith(tab.href);
@@ -25,7 +28,7 @@ export function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-3 text-xs font-medium ${
+              className={`flex flex-1 flex-col items-center gap-1 py-4 text-xs font-medium active:bg-surface-muted ${
                 active ? "text-primary" : "text-foreground/60"
               }`}
             >

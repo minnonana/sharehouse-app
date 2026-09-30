@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ROOM_NUMBERS } from "@/lib/duty/rotation";
@@ -55,22 +56,40 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "room_already_occupied" }, { status: 409 });
   }
 
-  const { data: member, error: memberError } = await supabase
-    .from("members")
-    .insert({
-      house_id: code.house_id,
-      auth_user_id: user.id,
-      name,
-      room_number: roomNumber,
-      display_language: displayLanguage ?? "ja",
-      is_owner: false,
-    })
-    .select()
-    .single();
+  // 参加直後はまだ自分の members 行が無いため、「自分の所属ハウスだけ見れる」という
+  // members の SELECT ポリシー上、insert().select() で作成直後の行を読み戻すことができない
+  // （auth_house_ids() がこの新しい行を見つけられず、Postgres は INSERT の WITH CHECK 違反と
+  // 同じ "new row violates row-level security policy" エラーを返す）。
+  // ハウス作成時と同様、id をアプリ側で発行し、SELECT を伴わない insert のみで作成する。
+  const memberId = randomUUID();
+  const memberJoinedAt = new Date().toISOString();
 
-  if (memberError || !member) {
-    return NextResponse.json({ error: memberError?.message ?? "member_create_failed" }, { status: 500 });
+  const { error: memberError } = await supabase.from("members").insert({
+    id: memberId,
+    house_id: code.house_id,
+    auth_user_id: user.id,
+    name,
+    room_number: roomNumber,
+    display_language: displayLanguage ?? "ja",
+    is_owner: false,
+    joined_at: memberJoinedAt,
+  });
+
+  if (memberError) {
+    return NextResponse.json({ error: memberError.message }, { status: 500 });
   }
+
+  const member = {
+    id: memberId,
+    house_id: code.house_id,
+    auth_user_id: user.id,
+    name,
+    room_number: roomNumber,
+    display_language: displayLanguage ?? "ja",
+    is_owner: false,
+    joined_at: memberJoinedAt,
+    left_at: null,
+  };
 
   await supabase
     .from("invite_codes")

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getDutyAssignmentsForWeek,
+  getRoomNumbers,
   getWedFriCollectionsForWeek,
   getWeekIndex,
   getWeekStartDate,
@@ -66,6 +67,31 @@ describe("getDutyAssignmentsForWeek — 仕様書の当番表と一致するこ�
       "116": "rest",
       "117": "kitchen_1f",
       "118": "toilet_1f",
+    });
+  });
+});
+
+describe("getRoomNumbers — 寮の建物番号ごとに部屋番号を組み立てられること", () => {
+  it("建物番号11なら111〜118", () => {
+    expect(getRoomNumbers("11")).toEqual(["111", "112", "113", "114", "115", "116", "117", "118"]);
+  });
+
+  it("建物番号22なら221〜228", () => {
+    expect(getRoomNumbers("22")).toEqual(["221", "222", "223", "224", "225", "226", "227", "228"]);
+  });
+
+  it("建物番号を変えてもローテーションのロジック自体は変わらない", () => {
+    const rooms22 = getRoomNumbers("22");
+    const assignments = getDutyAssignmentsForWeek("2026-09-27", rooms22);
+    expect(assignments).toEqual({
+      "221": "kitchen_1f",
+      "222": "toilet_1f",
+      "223": "toilet_2f",
+      "224": "entrance",
+      "225": "mon_trash",
+      "226": "thu_trash",
+      "227": "wed_fri",
+      "228": "rest",
     });
   });
 });

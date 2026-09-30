@@ -1,23 +1,32 @@
 // 掃除当番・ゴミ出し当番のローテーション計算（第1段階のコアロジック）
 // 仕様: docs/仕様書 第1段階（8週で一周、毎週日曜切り替え、空室なしの8部屋）
 //
+// 部屋番号は寮の建物番号(prefix)によって変わる（例: 11号棟なら111〜118、
+// 22号棟なら221〜228）。ハウスごとに houses.room_prefix に保存し、
+// getRoomNumbers(prefix) で実際の8部屋分の番号を組み立てる。
+//
 // 基準週: 2026-09-27（日）
-//   111=1Fキッチン, 112=1Fトイレ, 113=2Fトイレ, 114=玄関,
-//   115=月, 116=木, 117=水金, 118=休み
+//   部屋1=1Fキッチン, 部屋2=1Fトイレ, 部屋3=2Fトイレ, 部屋4=玄関,
+//   部屋5=月, 部屋6=木, 部屋7=水金, 部屋8=休み
 // 翌週から部屋番号が若い順に1つずつ担当がずれる。
 
-export const ROOM_NUMBERS = [
-  "111",
-  "112",
-  "113",
-  "114",
-  "115",
-  "116",
-  "117",
-  "118",
-] as const;
+/** デフォルトの建物番号（後方互換用。既存ハウスはこれになる） */
+export const DEFAULT_ROOM_PREFIX = "11";
 
-export type RoomNumber = (typeof ROOM_NUMBERS)[number];
+/** 建物番号から実際の部屋番号8つを組み立てる（例: "11" → ["111",...,"118"]） */
+export function getRoomNumbers(prefix: string = DEFAULT_ROOM_PREFIX): string[] {
+  return Array.from({ length: 8 }, (_, i) => `${prefix}${i + 1}`);
+}
+
+/** 部屋番号として妥当な形式か（建物番号 + 1〜8の数字1桁）を確認する */
+export function isValidRoomNumber(room: string, prefix: string = DEFAULT_ROOM_PREFIX): boolean {
+  return getRoomNumbers(prefix).includes(room);
+}
+
+export type RoomNumber = string;
+
+/** @deprecated ハウスごとの room_prefix から getRoomNumbers() を使うこと。後方互換のためのデフォルト8部屋。 */
+export const ROOM_NUMBERS = getRoomNumbers(DEFAULT_ROOM_PREFIX);
 
 export type DutyKey =
   | "kitchen_1f"
@@ -88,14 +97,15 @@ export function getWeekIndex(weekStartDateStr: string): number {
   return Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
 }
 
-/** 指定週の部屋ごとの担当を計算する */
+/** 指定週の部屋ごとの担当を計算する（roomNumbersはハウスごとの8部屋分の並び順） */
 export function getDutyAssignmentsForWeek(
   weekStartDateStr: string,
+  roomNumbers: string[] = ROOM_NUMBERS,
 ): Record<RoomNumber, DutyKey> {
   const weekIndex = getWeekIndex(weekStartDateStr);
-  const result = {} as Record<RoomNumber, DutyKey>;
+  const result: Record<RoomNumber, DutyKey> = {};
 
-  ROOM_NUMBERS.forEach((room, roomIndex) => {
+  roomNumbers.forEach((room, roomIndex) => {
     // 週が進むごとに、各部屋の担当は「1つ前の担当」にずれていく
     const dutyIndex = (((roomIndex - weekIndex) % 8) + 8) % 8;
     result[room] = DUTY_ORDER[dutyIndex];
@@ -108,16 +118,18 @@ export function getDutyAssignmentsForWeek(
 export function getDutyForRoom(
   weekStartDateStr: string,
   room: RoomNumber,
+  roomNumbers: string[] = ROOM_NUMBERS,
 ): DutyKey {
-  return getDutyAssignmentsForWeek(weekStartDateStr)[room];
+  return getDutyAssignmentsForWeek(weekStartDateStr, roomNumbers)[room];
 }
 
 /** ある担当がどの部屋かを引く（例: その週「休み」の部屋を探す） */
 export function getRoomForDuty(
   weekStartDateStr: string,
   duty: DutyKey,
+  roomNumbers: string[] = ROOM_NUMBERS,
 ): RoomNumber {
-  const map = getDutyAssignmentsForWeek(weekStartDateStr);
+  const map = getDutyAssignmentsForWeek(weekStartDateStr, roomNumbers);
   const entry = (Object.entries(map) as [RoomNumber, DutyKey][]).find(
     ([, d]) => d === duty,
   );
@@ -213,6 +225,7 @@ export function getWedFriCollectionsForWeek(weekStartDateStr: string): TrashEven
 export function buildDutySchedule(
   startWeekStr: string,
   numberOfWeeks = 8,
+  roomNumbers: string[] = ROOM_NUMBERS,
 ): Array<{
   weekStartDate: string;
   assignments: Record<RoomNumber, DutyKey>;
@@ -223,7 +236,7 @@ export function buildDutySchedule(
   for (let i = 0; i < numberOfWeeks; i++) {
     weeks.push({
       weekStartDate: cursor,
-      assignments: getDutyAssignmentsForWeek(cursor),
+      assignments: getDutyAssignmentsForWeek(cursor, roomNumbers),
       wedFriCollections: getWedFriCollectionsForWeek(cursor),
     });
     cursor = formatDate(addDays(parseDate(cursor), 7));

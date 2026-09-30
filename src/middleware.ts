@@ -27,12 +27,16 @@ export async function middleware(request: NextRequest) {
     },
   );
 
+  // getUser() は毎回Supabaseの認証サーバーにネットワークで問い合わせるため数百ms単位で遅く、
+  // それが全ページ共通のmiddlewareで動くとアプリ全体が遅くなる。
+  // getSession() はcookieのJWTをローカルで見て、期限切れの時だけネットワークでリフレッシュする
+  // ため、有効なセッションが既にある大半のリクエストではネットワーク往復が発生しない。
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
   // まだ誰もログインしていなければ匿名ログインさせる
-  if (!user) {
+  if (!session) {
     const { error } = await supabase.auth.signInAnonymously();
     if (error) {
       console.error("[middleware] signInAnonymously failed:", error.message);

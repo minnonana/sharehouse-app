@@ -41,6 +41,7 @@ export default async function DutyPage() {
     { data: pendingSwaps },
     { data: allDoneAssignments },
     { data: allSubstitutions },
+    { data: rooms },
   ] = await Promise.all([
     supabase
       .from("members")
@@ -71,9 +72,17 @@ export default async function DutyPage() {
       .eq("house_id", ctx.house.id)
       .eq("status", "done"),
     supabase.from("substitutions").select("covering_member_id").eq("house_id", ctx.house.id),
+    // アプリに未参加の住人の名前（代表者が部屋に登録したもの）。rooms が無い環境では空になる
+    supabase.from("rooms").select("room_number, resident_name").eq("house_id", ctx.house.id),
   ]);
 
   const memberByRoom = new Map((members ?? []).map((m) => [m.room_number, m]));
+  const residentNameByRoom = new Map(
+    ((rooms ?? []) as { room_number: string; resident_name: string | null }[]).map((r) => [
+      r.room_number,
+      r.resident_name,
+    ]),
+  );
   const dutyTypeByKey = new Map((dutyTypes ?? []).map((d) => [d.key, d]));
 
   const statusByMemberDuty = new Map(
@@ -178,7 +187,7 @@ export default async function DutyPage() {
                   >
                     <div className="flex items-center justify-between">
                       <span>
-                        {room} {roomMember?.name ?? ""}
+                        {room} {roomMember?.name ?? residentNameByRoom.get(room) ?? ""}
                       </span>
                       <span className="flex items-center gap-2">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">

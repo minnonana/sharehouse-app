@@ -26,7 +26,9 @@
     "addToHomeBody": "On iPhone, use Safari's share button to \"Add to Home Screen\", then open it from that icon before joining.",
     "openedFromBrowser": "This page was opened from a browser",
     "createHouseLink": "Setting up a house as a representative? Click here",
-    "handoverLink": "Got a new phone or reinstalled the app? Click here"
+    "handoverLink": "Got a new phone or reinstalled the app? Click here",
+    "roomTaken": "taken",
+    "joiningHouse": "Joining: {house}"
   },
   "handover": {
     "title": "Return with a handover code",
@@ -46,16 +48,22 @@
     "room_already_occupied": "Someone has already joined with this room number.",
     "invalid_room_number": "That room number is not valid.",
     "invalid_input": "Please check what you entered.",
-    "issue_failed": "The code could not be issued. Please try again."
+    "issue_failed": "The code could not be issued. Please try again.",
+    "invalid_room_numbers": "Please check the room numbers (a number appears twice, or none was entered)."
   },
   "createHouse": {
     "title": "Create a new house",
-    "subtitle": "You'll become a representative. There must always be at least 2 representatives, so add another one later from Settings.",
+    "subtitle": "You'll become a representative. In case you can no longer log in, make someone who joins a representative from Settings later (two or more is recommended).",
     "houseName": "House name",
     "houseNamePlaceholder": "e.g. Sunrise House",
     "yourName": "Your name",
     "yourRoomNumber": "Your room number",
-    "submit": "Create"
+    "submit": "Create",
+    "dorm": "Dorm",
+    "dormMax": "Up to {max} people per unit",
+    "roomNumbers": "Room numbers in your unit (all rooms)",
+    "roomNumbersHint": "Enter every room number in your unit, including empty rooms. Leave unused boxes blank.",
+    "roomNumberN": "Room number {n}"
   },
   "home": {
     "todayDuty": "Your duty today",
@@ -188,6 +196,8 @@
     "recoveryHint": "If this person can no longer log in, issue a 6-digit recovery code and tell it to them (valid for 24 hours). They can enter it from \"Got a new phone or reinstalled the app?\" on the join screen.",
     "dadsCreditPrefix": "Design inspired by the",
     "dadsCreditLinkText": "Japan Digital Agency Design System (DADS)",
-    "dadsCreditSuffix": "."
+    "dadsCreditSuffix": ".",
+    "makeOwner": "Make representative",
+    "makeOwnerHint": "Representatives can issue invite and recovery codes and handle move-outs. Keep at least two, in case one can no longer log in."
   }
 }

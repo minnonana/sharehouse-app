@@ -3,17 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
-import { DUTY_LABELS, type DutyKey } from "@/lib/duty/rotation";
 
 interface InboxItem {
   id: string;
   fromMemberName: string;
-  fromDutyKey: DutyKey;
-  toDutyKey: DutyKey;
+  fromDutyLabel: string;
+  toDutyLabel: string;
 }
 
 export function SwapRequestInbox({ items }: { items: InboxItem[] }) {
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -42,8 +41,8 @@ export function SwapRequestInbox({ items }: { items: InboxItem[] }) {
             <span>
               {t("duty.swapItemLabel", {
                 fromName: item.fromMemberName,
-                fromDuty: DUTY_LABELS[item.fromDutyKey][locale],
-                toDuty: DUTY_LABELS[item.toDutyKey][locale],
+                fromDuty: item.fromDutyLabel,
+                toDuty: item.toDutyLabel,
               })}
             </span>
             <span className="flex gap-2">

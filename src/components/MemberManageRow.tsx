@@ -59,6 +59,22 @@ export function MemberManageRow({
     }
   }
 
+  async function makeOwner() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/member/${memberId}/owner`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showError(data.error ?? "failed");
+        return;
+      }
+      router.refresh();
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function issueRecoveryCode() {
     setLoading(true);
     setError(null);
@@ -137,6 +153,19 @@ export function MemberManageRow({
                 className="rounded-full border border-primary px-4 py-2 text-xs font-bold text-primary-dark disabled:opacity-50"
               >
                 {code ? t("settings.reissue") : t("settings.recoveryIssue")}
+              </button>
+            </div>
+          )}
+
+          {viewerIsOwner && !isOwner && (
+            <div>
+              <p className="mb-2 text-xs text-foreground/60">{t("settings.makeOwnerHint")}</p>
+              <button
+                onClick={makeOwner}
+                disabled={loading}
+                className="rounded-full border border-primary px-4 py-2 text-xs font-bold text-primary-dark disabled:opacity-50"
+              >
+                {t("settings.makeOwner")}
               </button>
             </div>
           )}

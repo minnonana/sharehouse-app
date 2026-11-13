@@ -26,7 +26,9 @@
     "addToHomeBody": "iPhoneの方は、Safariの共有ボタンから「ホーム画面に追加」を選び、ホーム画面のアイコンから開き直してから参加してください。",
     "openedFromBrowser": "この画面はブラウザから開かれています",
     "createHouseLink": "代表者として新しくハウスを作る場合はこちら",
-    "handoverLink": "機種変更・アプリ削除後に戻る場合はこちら"
+    "handoverLink": "機種変更・アプリ削除後に戻る場合はこちら",
+    "roomTaken": "参加済み",
+    "joiningHouse": "参加先: {house}"
   },
   "handover": {
     "title": "引き継ぎコードで戻る",
@@ -46,16 +48,22 @@
     "room_already_occupied": "この部屋番号には、すでに別の人が参加しています。",
     "invalid_room_number": "部屋番号が正しくありません。",
     "invalid_input": "入力内容を確認してください。",
-    "issue_failed": "コードを発行できませんでした。もう一度試してください。"
+    "issue_failed": "コードを発行できませんでした。もう一度試してください。",
+    "invalid_room_numbers": "部屋番号を確認してください（同じ番号が2回入っている、または1つも入っていません）。"
   },
   "createHouse": {
     "title": "ハウスを新しく作る",
-    "subtitle": "作成したあなたは代表者になります。代表者は常に2人以上必要なので、後から設定画面でもう1人を代表者に追加してください。",
+    "subtitle": "作成したあなたは代表者になります。代表者がログインできなくなったときに備えて、参加した人をあとから設定画面で代表者に追加してください（2人以上がおすすめ）。",
     "houseName": "ハウス名",
     "houseNamePlaceholder": "例: ○○ハウス",
     "yourName": "あなたの名前",
     "yourRoomNumber": "あなたの部屋番号",
-    "submit": "作成する"
+    "submit": "作成する",
+    "dorm": "寮",
+    "dormMax": "1ユニット最大{max}人",
+    "roomNumbers": "ユニットの部屋番号（全部屋）",
+    "roomNumbersHint": "空いている部屋も含めて、ユニットにある部屋の番号をすべて入れてください。使わない欄は空のままで大丈夫です。",
+    "roomNumberN": "{n}つ目の部屋番号"
   },
   "home": {
     "todayDuty": "今日の自分の当番",
@@ -188,6 +196,8 @@
     "recoveryHint": "この人がログインできなくなったときに、6桁の復旧コードを発行して伝えてください（有効期限24時間）。参加画面の「機種変更・アプリ削除後に戻る場合はこちら」で入力すると戻れます。",
     "dadsCreditPrefix": "デザインは",
     "dadsCreditLinkText": "デジタル庁デザインシステム（DADS）",
-    "dadsCreditSuffix": "を参考にしています。"
+    "dadsCreditSuffix": "を参考にしています。",
+    "makeOwner": "代表者にする",
+    "makeOwnerHint": "代表者は、招待コードと復旧コードの発行、退去の手続きができます。代表者がログインできなくなったときに備えて、2人以上にしておいてください。"
   }
 }

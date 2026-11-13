@@ -3,30 +3,68 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
-import { ROOM_NUMBERS } from "@/lib/duty/rotation";
+import { DORM_TEMPLATES } from "@/lib/duty/templates";
+import type { DormType } from "@/lib/duty/engine";
+
+const DORMS: DormType[] = ["sakigake", "hokumei"];
 
 export default function CreateHousePage() {
   const { locale, t } = useI18n();
   const router = useRouter();
+  const [dormType, setDormType] = useState<DormType>("sakigake");
+  const [roomInputs, setRoomInputs] = useState<string[]>(Array(DORM_TEMPLATES.sakigake.maxRooms).fill(""));
   const [houseName, setHouseName] = useState("");
   const [name, setName] = useState("");
   const [roomNumber, setRoomNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const enteredRooms = roomInputs.map((r) => r.trim()).filter((r) => r !== "");
+  const hasDuplicate = new Set(enteredRooms).size !== enteredRooms.length;
+
+  function chooseDorm(next: DormType) {
+    setDormType(next);
+    const max = DORM_TEMPLATES[next].maxRooms;
+    setRoomInputs((prev) => Array.from({ length: max }, (_, i) => prev[i] ?? ""));
+  }
+
+  function setRoomInput(index: number, value: string) {
+    setRoomInputs((prev) => prev.map((r, i) => (i === index ? value : r)));
+  }
+
+  function showError(code: string) {
+    const key = `errors.${code}`;
+    setError(t(key) !== key ? t(key) : code);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (hasDuplicate || enteredRooms.length === 0) {
+      showError("invalid_room_numbers");
+      return;
+    }
+    if (!enteredRooms.includes(roomNumber)) {
+      showError("invalid_room_number");
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch("/api/house", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ houseName, name, roomNumber, displayLanguage: locale }),
+        body: JSON.stringify({
+          houseName,
+          name,
+          roomNumber,
+          displayLanguage: locale,
+          dormType,
+          roomNumbers: enteredRooms,
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "failed");
+        showError(data.error ?? "failed");
         return;
       }
       router.push("/home");
@@ -42,6 +80,32 @@ export default function CreateHousePage() {
       <p className="mb-6 text-sm text-foreground/70">{t("createHouse.subtitle")}</p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <fieldset className="flex flex-col gap-2 text-sm font-medium">
+          <legend className="mb-1">{t("createHouse.dorm")}</legend>
+          <div className="flex gap-2">
+            {DORMS.map((dorm) => {
+              const tpl = DORM_TEMPLATES[dorm];
+              const active = dorm === dormType;
+              return (
+                <button
+                  key={dorm}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => chooseDorm(dorm)}
+                  className={`flex-1 rounded-xl border px-4 py-3 text-left ${
+                    active ? "border-primary bg-primary-light text-primary-dark" : "border-border bg-white"
+                  }`}
+                >
+                  <span className="block text-base font-bold">{locale === "ja" ? tpl.nameJa : tpl.nameEn}</span>
+                  <span className="block text-xs font-normal text-foreground/70">
+                    {t("createHouse.dormMax", { max: tpl.maxRooms })}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
         <label className="flex flex-col gap-1 text-sm font-medium">
           {t("createHouse.houseName")}
           <input
@@ -52,6 +116,26 @@ export default function CreateHousePage() {
             placeholder={t("createHouse.houseNamePlaceholder")}
           />
         </label>
+
+        <fieldset className="flex flex-col gap-2 text-sm font-medium">
+          <legend className="mb-1">{t("createHouse.roomNumbers")}</legend>
+          <p className="text-xs font-normal text-foreground/70">{t("createHouse.roomNumbersHint")}</p>
+          <div className="grid grid-cols-4 gap-2">
+            {roomInputs.map((value, index) => (
+              <input
+                key={index}
+                value={value}
+                maxLength={10}
+                inputMode="numeric"
+                aria-label={t("createHouse.roomNumberN", { n: index + 1 })}
+                placeholder={String(index + 1)}
+                onChange={(e) => setRoomInput(index, e.target.value)}
+                className="min-w-0 rounded-lg border border-border px-2 py-3 text-center"
+              />
+            ))}
+          </div>
+          {hasDuplicate && <p className="text-xs font-normal text-danger">{t("errors.invalid_room_numbers")}</p>}
+        </fieldset>
 
         <label className="flex flex-col gap-1 text-sm font-medium">
           {t("createHouse.yourName")}
@@ -67,14 +151,14 @@ export default function CreateHousePage() {
           {t("createHouse.yourRoomNumber")}
           <select
             required
-            value={roomNumber}
+            value={enteredRooms.includes(roomNumber) ? roomNumber : ""}
             onChange={(e) => setRoomNumber(e.target.value)}
             className="rounded-lg border border-border bg-white px-4 py-3"
           >
             <option value="" disabled>
               -
             </option>
-            {ROOM_NUMBERS.map((room) => (
+            {Array.from(new Set(enteredRooms)).map((room) => (
               <option key={room} value={room}>
                 {room}
               </option>
@@ -82,9 +166,7 @@ export default function CreateHousePage() {
           </select>
         </label>
 
-        {error && (
-          <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-danger">{error}</p>
-        )}
+        {error && <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-danger">{error}</p>}
 
         <button
           type="submit"

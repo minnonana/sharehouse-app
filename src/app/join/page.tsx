@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useI18n, type Locale } from "@/lib/i18n";
 import { AddToHomeScreenNotice } from "@/components/AddToHomeScreenNotice";
@@ -15,6 +15,36 @@ export default function JoinPage() {
   const [roomNumber, setRoomNumber] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // 招待コードから分かった参加先（ハウス名と、選べる部屋）。取れないときは従来の111〜118
+  const [joinInfo, setJoinInfo] = useState<{
+    houseName: string;
+    rooms: { roomNumber: string; occupied: boolean }[];
+  } | null>(null);
+
+  useEffect(() => {
+    if (inviteCode.length !== 6) return;
+    let cancelled = false;
+    fetch("/api/join/info", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: inviteCode }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled) setJoinInfo(data);
+      })
+      .catch(() => {
+        if (!cancelled) setJoinInfo(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [inviteCode]);
+
+  const activeJoinInfo = inviteCode.length === 6 ? joinInfo : null;
+  const roomOptions = activeJoinInfo
+    ? activeJoinInfo.rooms
+    : ROOM_NUMBERS.map((room) => ({ roomNumber: room, occupied: false }));
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -80,6 +110,12 @@ export default function JoinPage() {
           />
         </label>
 
+        {activeJoinInfo && (
+          <p className="rounded-lg bg-primary-light px-4 py-2 text-sm text-primary-dark">
+            {t("join.joiningHouse", { house: activeJoinInfo.houseName })}
+          </p>
+        )}
+
         <label className="flex flex-col gap-1 text-sm font-medium">
           {t("join.name")}
           <input
@@ -101,9 +137,10 @@ export default function JoinPage() {
             <option value="" disabled>
               -
             </option>
-            {ROOM_NUMBERS.map((room) => (
-              <option key={room} value={room}>
-                {room}
+            {roomOptions.map((room) => (
+              <option key={room.roomNumber} value={room.roomNumber} disabled={room.occupied}>
+                {room.roomNumber}
+                {room.occupied ? ` (${t("join.roomTaken")})` : ""}
               </option>
             ))}
           </select>

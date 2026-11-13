@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { getTodayJst } from "@/lib/date/jst";
-import { DUTY_LABELS, TRASH_LABELS, getWeekStartDate, type DutyKey } from "@/lib/duty/rotation";
+import { DUTY_LABELS, TRASH_LABELS, getWeekStartDate } from "@/lib/duty/rotation";
 import { buildPlanWeeks, dutyDisplay, type RoomRow, type RotationRow } from "@/lib/duty/plan";
 import { AbsenceForm } from "@/components/AbsenceForm";
 import { SwapRequestForm } from "@/components/SwapRequestForm";
@@ -89,6 +89,10 @@ export default async function DutyPage() {
   const memberById = new Map((members ?? []).map((m) => [m.id, m]));
   const dutyTypeById = new Map((dutyTypes ?? []).map((d) => [d.id, d]));
 
+  const swapDutyLabel = (dutyTypeId: string) => {
+    const duty = dutyTypeById.get(dutyTypeId);
+    return duty ? dutyDisplay(duty, lang, currentWeek.wedFriCollections).label : "?";
+  };
   const inboxItems = (pendingSwaps ?? [])
     .filter((s) => {
       const to = s.to_assignment as unknown as { member_id: string; duty_type_id: string };
@@ -100,8 +104,8 @@ export default async function DutyPage() {
       return {
         id: s.id as string,
         fromMemberName: memberById.get(from.member_id)?.name ?? "?",
-        fromDutyKey: (dutyTypeById.get(from.duty_type_id)?.key ?? "rest") as DutyKey,
-        toDutyKey: (dutyTypeById.get(to.duty_type_id)?.key ?? "rest") as DutyKey,
+        fromDutyLabel: swapDutyLabel(from.duty_type_id),
+        toDutyLabel: swapDutyLabel(to.duty_type_id),
       };
     });
 
@@ -218,7 +222,7 @@ export default async function DutyPage() {
                     {isCurrent && isMine && entry.duties.length === 1 && (
                       <SwapRequestForm
                         weekStartDate={currentWeekStart}
-                        myDutyTypeKey={entry.duties[0].key as DutyKey}
+                        myDutyTypeKey={entry.duties[0].key}
                         candidates={week.entries
                           .filter((e) => e.roomNumber !== room)
                           .map((e) => {
@@ -228,7 +232,8 @@ export default async function DutyPage() {
                               room: e.roomNumber,
                               memberId: m.id,
                               memberName: m.name,
-                              dutyKey: e.duties[0].key as DutyKey,
+                              dutyKey: e.duties[0].key,
+                              dutyLabel: dutyDisplay(e.duties[0], lang, week.wedFriCollections).label,
                             };
                           })
                           .filter((v): v is NonNullable<typeof v> => v !== null)}

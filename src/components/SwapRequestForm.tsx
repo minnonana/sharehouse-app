@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
-import { DUTY_LABELS, type DutyKey, type RoomNumber } from "@/lib/duty/rotation";
+
 
 export function SwapRequestForm({
   weekStartDate,
@@ -11,10 +11,10 @@ export function SwapRequestForm({
   candidates,
 }: {
   weekStartDate: string;
-  myDutyTypeKey: DutyKey;
-  candidates: Array<{ room: RoomNumber; memberId: string; memberName: string; dutyKey: DutyKey }>;
+  myDutyTypeKey: string;
+  candidates: Array<{ room: string; memberId: string; memberName: string; dutyKey: string; dutyLabel: string }>;
 }) {
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [targetIndex, setTargetIndex] = useState("");
@@ -65,7 +65,7 @@ export function SwapRequestForm({
         </option>
         {candidates.map((c, i) => (
           <option key={c.memberId} value={i}>
-            {c.room} {c.memberName}（{DUTY_LABELS[c.dutyKey][locale]}）
+            {c.room} {c.memberName}（{c.dutyLabel}）
           </option>
         ))}
       </select>

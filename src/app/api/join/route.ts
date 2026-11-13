@@ -23,10 +23,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
 
-  if (!ROOM_NUMBERS.includes(roomNumber as (typeof ROOM_NUMBERS)[number])) {
-    return NextResponse.json({ error: "invalid_room_number" }, { status: 400 });
-  }
-
   const { data: code } = await supabase
     .from("invite_codes")
     .select("*")
@@ -41,6 +37,20 @@ export async function POST(request: Request) {
   }
   if (new Date(code.expires_at).getTime() < Date.now()) {
     return NextResponse.json({ error: "code_expired" }, { status: 410 });
+  }
+
+  // 参加先のハウスの部屋から選ばれているか確認する。参加前は rooms が見えないため、
+  // 招待コードを鍵にしたDB関数で調べる（関数が無い環境では、従来の111〜118で確認する）
+  let roomId: string | null = null;
+  const { data: joinInfo } = await supabase.rpc("get_join_info", { p_code: inviteCode });
+  const joinRooms = (joinInfo ?? []) as { room_id: string; room_number: string; occupied: boolean }[];
+  if (joinRooms.length > 0) {
+    const room = joinRooms.find((r) => r.room_number === roomNumber);
+    if (!room) return NextResponse.json({ error: "invalid_room_number" }, { status: 400 });
+    if (room.occupied) return NextResponse.json({ error: "room_already_occupied" }, { status: 409 });
+    roomId = room.room_id;
+  } else if (!ROOM_NUMBERS.includes(roomNumber)) {
+    return NextResponse.json({ error: "invalid_room_number" }, { status: 400 });
   }
 
   // その部屋番号が既に埋まっていないか確認
@@ -70,6 +80,7 @@ export async function POST(request: Request) {
     auth_user_id: user.id,
     name,
     room_number: roomNumber,
+    ...(roomId ? { room_id: roomId } : {}),
     display_language: displayLanguage ?? "ja",
     is_owner: false,
     joined_at: memberJoinedAt,

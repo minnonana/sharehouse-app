@@ -8,12 +8,22 @@ import type { DormType } from "@/lib/duty/engine";
 
 const DORMS: DormType[] = ["sakigake", "hokumei"];
 
+/** ユニットの番号（110 のように0で終わる）から、部屋番号（111, 112, …）を作る */
+function roomsFromUnit(unit: string, count: number): string[] | null {
+  if (!/^[0-9]*[1-9][0-9]*0$/.test(unit)) return null;
+  const base = Number(unit);
+  return Array.from({ length: count }, (_, i) => String(base + i + 1));
+}
+
 export default function CreateHousePage() {
   const { locale, t } = useI18n();
   const router = useRouter();
   const [dormType, setDormType] = useState<DormType>("sakigake");
   const [roomInputs, setRoomInputs] = useState<string[]>(Array(DORM_TEMPLATES.sakigake.maxRooms).fill(""));
+  const [unitNumber, setUnitNumber] = useState("");
   const [houseName, setHouseName] = useState("");
+  // ハウス名を自分で書き換えるまでは、ユニットの番号をそのままハウス名にする
+  const [houseNameEdited, setHouseNameEdited] = useState(false);
   const [name, setName] = useState("");
   const [roomNumber, setRoomNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +35,18 @@ export default function CreateHousePage() {
   function chooseDorm(next: DormType) {
     setDormType(next);
     const max = DORM_TEMPLATES[next].maxRooms;
-    setRoomInputs((prev) => Array.from({ length: max }, (_, i) => prev[i] ?? ""));
+    setRoomInputs((prev) => roomsFromUnit(unitNumber, max) ?? Array.from({ length: max }, (_, i) => prev[i] ?? ""));
+  }
+
+  function changeUnitNumber(value: string) {
+    const unit = value.replace(/\D/g, "");
+    setUnitNumber(unit);
+    if (!houseNameEdited) setHouseName(unit);
+    const rooms = roomsFromUnit(unit, DORM_TEMPLATES[dormType].maxRooms);
+    if (rooms) {
+      setRoomInputs(rooms);
+      if (!rooms.includes(roomNumber)) setRoomNumber("");
+    }
   }
 
   function setRoomInput(index: number, value: string) {
@@ -107,11 +128,27 @@ export default function CreateHousePage() {
         </fieldset>
 
         <label className="flex flex-col gap-1 text-sm font-medium">
+          {t("createHouse.unitNumber")}
+          <input
+            inputMode="numeric"
+            maxLength={9}
+            value={unitNumber}
+            onChange={(e) => changeUnitNumber(e.target.value)}
+            className="rounded-lg border border-border px-4 py-3"
+            placeholder="110"
+          />
+          <span className="text-xs font-normal text-foreground/70">{t("createHouse.unitNumberHint")}</span>
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm font-medium">
           {t("createHouse.houseName")}
           <input
             required
             value={houseName}
-            onChange={(e) => setHouseName(e.target.value)}
+            onChange={(e) => {
+              setHouseName(e.target.value);
+              setHouseNameEdited(true);
+            }}
             className="rounded-lg border border-border px-4 py-3"
             placeholder={t("createHouse.houseNamePlaceholder")}
           />

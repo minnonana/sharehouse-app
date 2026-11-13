@@ -62,8 +62,10 @@
     "dorm": "Dorm",
     "dormMax": "Up to {max} people per unit",
     "roomNumbers": "Room numbers in your unit (all rooms)",
-    "roomNumbersHint": "Enter every room number in your unit, including empty rooms. Leave unused boxes blank.",
-    "roomNumberN": "Room number {n}"
+    "roomNumbersHint": "These are the rooms in your unit (including empty rooms). Correct them if needed, and clear any box you don't use.",
+    "roomNumberN": "Room number {n}",
+    "unitNumber": "Unit number",
+    "unitNumberHint": "Enter something like 110 and the room numbers (111, 112, …) are filled in for you. You can correct them below."
   },
   "home": {
     "todayDuty": "Your duty today",

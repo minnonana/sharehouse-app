@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
-import { getRoomForDuty } from "@/lib/duty/rotation";
+import { buildPlanWeeks } from "@/lib/duty/plan";
+import { loadPlanData } from "@/lib/duty/loadPlan";
 import { sendPushToMember } from "@/lib/push/send";
 import { pushMessages, localize } from "@/lib/push/messages";
 
@@ -17,13 +18,15 @@ export async function POST(request: Request) {
     dutyTypeKey: string;
   };
 
+  const supabase = await createClient();
+
   // 代行できるのは、その週「休み」の部屋の人だけ
-  const restRoom = getRoomForDuty(weekStartDate, "rest");
-  if (ctx.member.room_number !== restRoom) {
+  const plan = await loadPlanData(supabase, ctx.house.id);
+  const [week] = buildPlanWeeks({ ...plan, startWeek: weekStartDate, numberOfWeeks: 1 });
+  const myEntry = week.entries.find((e) => e.roomNumber === ctx.member.room_number);
+  if (!myEntry || myEntry.duties.length !== 0) {
     return NextResponse.json({ error: "not_this_weeks_rest_member" }, { status: 403 });
   }
-
-  const supabase = await createClient();
 
   const { data: dutyType } = await supabase
     .from("duty_types")

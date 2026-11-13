@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { ROOM_NUMBERS, DUTY_ORDER, DUTY_LABELS } from "@/lib/duty/rotation";
+import { ROOM_NUMBERS, DUTY_ORDER, DUTY_LABELS, BASE_WEEK_START } from "@/lib/duty/rotation";
 
 // 代表者がハウスを新規作成する。作成した人がそのまま最初の代表者(is_owner)になる。
 //
@@ -68,6 +68,7 @@ export async function POST(request: Request) {
 
   // 初期の担当マスタを投入（設定画面で後から変更可能）
   const dutyTypesPayload = DUTY_ORDER.map((key, index) => ({
+    id: randomUUID(),
     house_id: houseId,
     key,
     label_ja: DUTY_LABELS[key].ja,
@@ -78,6 +79,21 @@ export async function POST(request: Request) {
   }));
 
   await supabase.from("duty_types").insert(dutyTypesPayload);
+
+  // 部屋と、当番の組み方の区切り（今は111〜118の8部屋、7担当＋休みを従来と同じ順で回す）
+  const roomsPayload = ROOM_NUMBERS.map((roomNumberValue, index) => ({
+    id: randomUUID(),
+    house_id: houseId,
+    room_number: roomNumberValue,
+    sort_order: index,
+  }));
+  await supabase.from("rooms").insert(roomsPayload);
+  await supabase.from("duty_rotations").insert({
+    house_id: houseId,
+    starts_on: BASE_WEEK_START,
+    room_ids: roomsPayload.map((r) => r.id),
+    slots: dutyTypesPayload.map((d) => (d.key === "rest" ? [] : [d.id])),
+  });
   await supabase.from("washer_status").insert({ house_id: houseId, status: "idle" });
 
   return NextResponse.json({

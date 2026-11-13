@@ -1,16 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentMember } from "@/lib/member/getCurrentMember";
 import { getTodayJst } from "@/lib/date/jst";
-import {
-  buildDutySchedule,
-  DUTY_LABELS,
-  ROOM_NUMBERS,
-  TRASH_LABELS,
-  getWeekStartDate,
-  getWedFriDutyLabel,
-  type DutyKey,
-  type RoomNumber,
-} from "@/lib/duty/rotation";
+import { DUTY_LABELS, TRASH_LABELS, getWeekStartDate, type DutyKey } from "@/lib/duty/rotation";
+import { buildPlanWeeks, dutyDisplay, type RoomRow, type RotationRow } from "@/lib/duty/plan";
 import { AbsenceForm } from "@/components/AbsenceForm";
 import { SwapRequestForm } from "@/components/SwapRequestForm";
 import { SwapRequestInbox } from "@/components/SwapRequestInbox";
@@ -23,14 +15,11 @@ export default async function DutyPage() {
   if (!ctx) return null;
 
   const lang = ctx.member.display_language;
-  const dutyLabel = (key: DutyKey) => DUTY_LABELS[key][lang];
   const trashLabel = (kind: keyof typeof TRASH_LABELS) => TRASH_LABELS[kind][lang];
 
   const supabase = await createClient();
   const today = getTodayJst();
   const currentWeekStart = getWeekStartDate(today);
-  const weeks = buildDutySchedule(currentWeekStart, 8);
-  const currentWeek = weeks[0];
 
   // 互いに依存しないクエリはPromise.allでまとめて並列実行する
   // （順番にawaitすると往復が直列に積み上がり、遷移が遅くなる）。
@@ -42,6 +31,7 @@ export default async function DutyPage() {
     { data: allDoneAssignments },
     { data: allSubstitutions },
     { data: rooms },
+    { data: rotations },
   ] = await Promise.all([
     supabase
       .from("members")
@@ -72,18 +62,25 @@ export default async function DutyPage() {
       .eq("house_id", ctx.house.id)
       .eq("status", "done"),
     supabase.from("substitutions").select("covering_member_id").eq("house_id", ctx.house.id),
-    // アプリに未参加の住人の名前（代表者が部屋に登録したもの）。rooms が無い環境では空になる
-    supabase.from("rooms").select("room_number, resident_name").eq("house_id", ctx.house.id),
+    // 部屋（アプリ未参加の住人の名前を含む）と、当番の組み方の区切り
+    supabase.from("rooms").select("*").eq("house_id", ctx.house.id).order("sort_order").returns<RoomRow[]>(),
+    supabase
+      .from("duty_rotations")
+      .select("starts_on, room_ids, slots")
+      .eq("house_id", ctx.house.id)
+      .returns<RotationRow[]>(),
   ]);
 
+  const weeks = buildPlanWeeks({
+    rooms: rooms ?? [],
+    duties: dutyTypes ?? [],
+    rotations: rotations ?? [],
+    startWeek: currentWeekStart,
+    numberOfWeeks: 8,
+  });
+  const currentWeek = weeks[0];
+
   const memberByRoom = new Map((members ?? []).map((m) => [m.room_number, m]));
-  const residentNameByRoom = new Map(
-    ((rooms ?? []) as { room_number: string; resident_name: string | null }[]).map((r) => [
-      r.room_number,
-      r.resident_name,
-    ]),
-  );
-  const dutyTypeByKey = new Map((dutyTypes ?? []).map((d) => [d.key, d]));
 
   const statusByMemberDuty = new Map(
     (currentAssignments ?? []).map((a) => [`${a.member_id}:${a.duty_type_id}`, a.status]),
@@ -109,10 +106,8 @@ export default async function DutyPage() {
     });
 
   // 今週「休み」の部屋（代行できる人）
-  const restRoom = (Object.entries(currentWeek.assignments) as [RoomNumber, DutyKey][]).find(
-    ([, duty]) => duty === "rest",
-  )?.[0];
-  const isRestMember = ctx.member.room_number === restRoom;
+  const isRestMember =
+    currentWeek.entries.find((e) => e.roomNumber === ctx.member.room_number)?.duties.length === 0;
 
   const completedCountByMember = new Map<string, number>();
   (allDoneAssignments ?? []).forEach((a) => {
@@ -156,27 +151,26 @@ export default async function DutyPage() {
             </div>
 
             <ul className="flex flex-col gap-1">
-              {ROOM_NUMBERS.map((room) => {
-                const dutyKey = week.assignments[room];
+              {week.entries.map((entry) => {
+                const room = entry.roomNumber;
+                const isRest = entry.duties.length === 0;
                 const isMine = room === ctx.member.room_number;
                 const roomMember = memberByRoom.get(room);
-                const dutyType = dutyTypeByKey.get(dutyKey);
-                const status =
-                  isCurrent && roomMember && dutyType
-                    ? statusByMemberDuty.get(`${roomMember.id}:${dutyType.id}`) ?? "pending"
-                    : undefined;
-                const isDone = status === "done";
-                const isPendingDisplay = isCurrent && dutyKey !== "rest" && !isDone;
+                const dutyStatuses = entry.duties.map((duty) => ({
+                  duty,
+                  display: dutyDisplay(duty, lang, week.wedFriCollections),
+                  done:
+                    isCurrent && roomMember
+                      ? statusByMemberDuty.get(`${roomMember.id}:${duty.id}`) === "done"
+                      : false,
+                }));
+                const isDone = !isRest && dutyStatuses.every((d) => d.done);
+                const isPendingDisplay = isCurrent && !isRest && !isDone;
                 const isOverdue = isPendingDisplay && weekEnded;
 
                 // 完了済みは薄く目立たなくし、まだの人が自然と浮き上がるようにする
-                const faded = isCurrent && dutyKey !== "rest" && isDone;
-
-                // 「水金」はその週に実際出すゴミの種類（資源・あきびん等）で具体的に表示する
-                const displayLabel =
-                  dutyKey === "wed_fri"
-                    ? getWedFriDutyLabel(week.wedFriCollections, lang)
-                    : dutyLabel(dutyKey);
+                const faded = isCurrent && isDone;
+                const rowLabel = dutyStatuses.map((d) => d.display.label).join(lang === "ja" ? "・" : " / ");
 
                 return (
                   <li
@@ -185,16 +179,28 @@ export default async function DutyPage() {
                       isMine ? "border-l-4 border-primary bg-surface-muted" : "bg-surface-muted"
                     } ${faded ? "opacity-40" : ""}`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span>
-                        {room} {roomMember?.name ?? residentNameByRoom.get(room) ?? ""}
+                        {room} {roomMember?.name ?? entry.residentName ?? ""}
                       </span>
-                      <span className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-                          {DUTY_LABELS[dutyKey].short}
-                        </span>
-                        {displayLabel}
-                        {isDone && <span aria-label={displayLabel}>✓</span>}
+                      <span className="flex flex-wrap items-center justify-end gap-2">
+                        {isRest && (
+                          <>
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                              {DUTY_LABELS.rest.short}
+                            </span>
+                            {DUTY_LABELS.rest[lang]}
+                          </>
+                        )}
+                        {dutyStatuses.map(({ duty, display }) => (
+                          <span key={duty.id} className="flex items-center gap-2">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                              {display.short}
+                            </span>
+                            {display.label}
+                          </span>
+                        ))}
+                        {isDone && <span aria-label={rowLabel}>✓</span>}
                         {isOverdue && (
                           <span className="rounded-full bg-danger px-2 py-0.5 text-[10px] font-bold text-white">
                             <T k="duty.incomplete" />
@@ -208,16 +214,22 @@ export default async function DutyPage() {
                       </span>
                     </div>
 
-                    {isCurrent && isMine && dutyKey !== "rest" && (
+                    {/* 交換は、担当が1つの人どうしでだけ行う（まとめた担当の交換は未対応） */}
+                    {isCurrent && isMine && entry.duties.length === 1 && (
                       <SwapRequestForm
                         weekStartDate={currentWeekStart}
-                        myDutyTypeKey={dutyKey}
-                        candidates={ROOM_NUMBERS.filter((r) => r !== room)
-                          .map((r) => {
-                            const m = memberByRoom.get(r);
-                            const dk = week.assignments[r];
-                            if (!m || dk === "rest") return null;
-                            return { room: r, memberId: m.id, memberName: m.name, dutyKey: dk };
+                        myDutyTypeKey={entry.duties[0].key as DutyKey}
+                        candidates={week.entries
+                          .filter((e) => e.roomNumber !== room)
+                          .map((e) => {
+                            const m = memberByRoom.get(e.roomNumber);
+                            if (!m || e.duties.length !== 1) return null;
+                            return {
+                              room: e.roomNumber,
+                              memberId: m.id,
+                              memberName: m.name,
+                              dutyKey: e.duties[0].key as DutyKey,
+                            };
                           })
                           .filter((v): v is NonNullable<typeof v> => v !== null)}
                       />
@@ -226,17 +238,18 @@ export default async function DutyPage() {
                     {isCurrent &&
                       isRestMember &&
                       !isMine &&
-                      dutyKey !== "rest" &&
-                      status !== "done" &&
-                      roomMember && (
-                        <div>
-                          <SubstituteButton
-                            weekStartDate={currentWeekStart}
-                            originalMemberId={roomMember.id}
-                            dutyTypeKey={dutyKey}
-                          />
-                        </div>
-                      )}
+                      roomMember &&
+                      dutyStatuses
+                        .filter((d) => !d.done)
+                        .map(({ duty }) => (
+                          <div key={duty.id}>
+                            <SubstituteButton
+                              weekStartDate={currentWeekStart}
+                              originalMemberId={roomMember.id}
+                              dutyTypeKey={duty.key}
+                            />
+                          </div>
+                        ))}
                   </li>
                 );
               })}

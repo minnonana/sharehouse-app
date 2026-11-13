@@ -39,7 +39,14 @@
     "invalid_or_expired_code": "This code is invalid or has expired.",
     "member_not_found_or_left": "That member could not be found (they may have already left).",
     "owner_count_would_drop_below_two": "There must always be at least 2 representatives, so this member can't leave. Make someone else a representative first.",
-    "forbidden": "You don't have permission to do this."
+    "forbidden": "You don't have permission to do this.",
+    "code_not_found": "This invite code was not found. Please check the number again.",
+    "code_already_used": "This invite code has already been used. Ask a representative for a new one.",
+    "code_expired": "This invite code has expired. Ask a representative for a new one.",
+    "room_already_occupied": "Someone has already joined with this room number.",
+    "invalid_room_number": "That room number is not valid.",
+    "invalid_input": "Please check what you entered.",
+    "issue_failed": "The code could not be issued. Please try again."
   },
   "createHouse": {
     "title": "Create a new house",
@@ -173,6 +180,12 @@
     "handover": "Issue handover code",
     "handoverHint": "Issue a 6-digit handover code (valid for 24 hours) to use when you get a new phone or reinstall the app.",
     "leave": "Leave the house",
+    "manage": "Edit",
+    "manageClose": "Close",
+    "rename": "Rename",
+    "renameLabel": "Name",
+    "recoveryIssue": "Issue recovery code",
+    "recoveryHint": "If this person can no longer log in, issue a 6-digit recovery code and tell it to them (valid for 24 hours). They can enter it from \"Got a new phone or reinstalled the app?\" on the join screen.",
     "dadsCreditPrefix": "Design inspired by the",
     "dadsCreditLinkText": "Japan Digital Agency Design System (DADS)",
     "dadsCreditSuffix": "."

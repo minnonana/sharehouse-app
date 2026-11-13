@@ -39,7 +39,14 @@
     "invalid_or_expired_code": "コードが無効か、有効期限が切れています。",
     "member_not_found_or_left": "対象のメンバーが見つかりません（既に退去済みの可能性があります）。",
     "owner_count_would_drop_below_two": "代表者は常に2人以上必要なため、退去できません。先に別の人を代表者にしてください。",
-    "forbidden": "この操作を行う権限がありません。"
+    "forbidden": "この操作を行う権限がありません。",
+    "code_not_found": "この招待コードは見つかりません。番号をもう一度確認してください。",
+    "code_already_used": "この招待コードは、すでに使われています。代表者に新しいコードを発行してもらってください。",
+    "code_expired": "この招待コードは、有効期限が切れています。代表者に新しいコードを発行してもらってください。",
+    "room_already_occupied": "この部屋番号には、すでに別の人が参加しています。",
+    "invalid_room_number": "部屋番号が正しくありません。",
+    "invalid_input": "入力内容を確認してください。",
+    "issue_failed": "コードを発行できませんでした。もう一度試してください。"
   },
   "createHouse": {
     "title": "ハウスを新しく作る",
@@ -173,6 +180,12 @@
     "handover": "引き継ぎコード発行",
     "handoverHint": "機種変更・アプリ削除に備えて、6桁の引き継ぎコードを発行できます（有効期限24時間）。",
     "leave": "退去する",
+    "manage": "編集",
+    "manageClose": "閉じる",
+    "rename": "名前を変更",
+    "renameLabel": "名前",
+    "recoveryIssue": "復旧コードを発行",
+    "recoveryHint": "この人がログインできなくなったときに、6桁の復旧コードを発行して伝えてください（有効期限24時間）。参加画面の「機種変更・アプリ削除後に戻る場合はこちら」で入力すると戻れます。",
     "dadsCreditPrefix": "デザインは",
     "dadsCreditLinkText": "デジタル庁デザインシステム（DADS）",
     "dadsCreditSuffix": "を参考にしています。"

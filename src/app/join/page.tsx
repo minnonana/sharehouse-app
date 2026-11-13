@@ -33,7 +33,9 @@ export default function JoinPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "failed");
+        const code = data.error ?? "failed";
+        const key = `errors.${code}`;
+        setError(t(key) !== key ? t(key) : code);
         return;
       }
       router.push("/home");

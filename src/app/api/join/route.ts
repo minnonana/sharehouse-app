@@ -76,6 +76,11 @@ export async function POST(request: Request) {
   });
 
   if (memberError) {
+    // 入居中の住人は1部屋1人まで（DBの一意制約 uniq_members_house_room_active）。
+    // 上の事前確認は、参加前の人には他の住人の行が見えないため当てにならない。
+    if (memberError.code === "23505" && memberError.message.includes("uniq_members_house_room_active")) {
+      return NextResponse.json({ error: "room_already_occupied" }, { status: 409 });
+    }
     return NextResponse.json({ error: memberError.message }, { status: 500 });
   }
 
